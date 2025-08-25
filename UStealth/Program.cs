@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -13,6 +14,7 @@ namespace UStealth
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new ToggleMain());
+            Application.SetDefaultFont(new Font(new FontFamily("Microsoft Sans Serif"), 8f));
         }
     }
 }
