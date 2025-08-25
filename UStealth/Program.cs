@@ -13,8 +13,8 @@ namespace UStealth
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ToggleMain());
             Application.SetDefaultFont(new Font(new FontFamily("Microsoft Sans Serif"), 8f));
+            Application.Run(new ToggleMain());
         }
     }
 }
