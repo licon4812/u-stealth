@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "UStealth.WinUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "UStealth.WinUI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
