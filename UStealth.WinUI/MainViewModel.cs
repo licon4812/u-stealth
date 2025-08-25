@@ -19,8 +19,7 @@ namespace UStealth.WinUI
 
         public MainViewModel()
         {
-            //LoadDrives();
-            Drives = [new DriveInfoModel() { SystemDrive = "C" }];
+            LoadDrives();
         }
 
         public void LoadDrives()
