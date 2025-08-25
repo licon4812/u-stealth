@@ -1,31 +1,50 @@
+using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace UStealth.WinUI
 {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainWindow : Window
     {
+        public MainViewModel ViewModel { get; } = new();
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.LoadDrives();
+        }
+
+        private async void DrivesTableView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            if (DrivesTableView.SelectedItem is DriveInfoModel selected)
+            {
+                ViewModel.SelectedDrive = selected;
+                var result = await ViewModel.ToggleSelectedDriveAsync();
+                if (!string.IsNullOrEmpty(result))
+                {
+                    var parts = result.Split('|');
+                    await ShowDialog(parts[0], parts.Length > 1 ? parts[1] : "");
+                }
+            }
+        }
+
+        private async Task ShowDialog(string content, string title)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = content,
+                CloseButtonText = "OK",
+                XamlRoot = this.Content.XamlRoot
+            };
+            await dialog.ShowAsync();
         }
     }
 }

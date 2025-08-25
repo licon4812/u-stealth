@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:UStealth.WinUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tableView="using:WinUI.TableView"
     Title="U-Stealth"
     mc:Ignorable="d">
 
@@ -13,5 +14,20 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid />
+    <Grid Padding="16" RowDefinitions="Auto,*">
+        <Button
+            x:Name="RefreshButton"
+            Width="100"
+            Height="32"
+            HorizontalAlignment="Right"
+            Click="RefreshButton_Click"
+            Content="Refresh" />
+        <tableView:TableView
+            x:Name="DrivesTableView"
+            Grid.Row="1"
+            Margin="0,16,0,0"
+            DoubleTapped="DrivesTableView_DoubleTapped"
+            ItemsSource="{x:Bind ViewModel.Drives}"
+            SelectionMode="Single" />
+    </Grid>
 </Window>

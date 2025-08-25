@@ -22,7 +22,7 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>output.ico</ApplicationIcon>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU;x64;</Platforms>
     <RootNamespace>UStealth</RootNamespace>
     <AssemblyName>UStealth</AssemblyName>
   </PropertyGroup>
