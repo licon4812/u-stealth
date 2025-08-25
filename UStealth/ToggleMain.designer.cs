@@ -28,71 +28,74 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ToggleMain));
-            this.dg1 = new System.Windows.Forms.DataGridView();
-            this.button1 = new System.Windows.Forms.Button();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.dg1)).BeginInit();
-            this.SuspendLayout();
+            dg1 = new System.Windows.Forms.DataGridView();
+            button1 = new System.Windows.Forms.Button();
+            toolTip1 = new System.Windows.Forms.ToolTip(components);
+            textBox1 = new System.Windows.Forms.TextBox();
+            ((System.ComponentModel.ISupportInitialize)dg1).BeginInit();
+            SuspendLayout();
             // 
             // dg1
             // 
-            this.dg1.AllowUserToAddRows = false;
-            this.dg1.AllowUserToDeleteRows = false;
-            this.dg1.AllowUserToOrderColumns = true;
-            this.dg1.AllowUserToResizeRows = false;
-            this.dg1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dg1.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dg1.Location = new System.Drawing.Point(12, 53);
-            this.dg1.MultiSelect = false;
-            this.dg1.Name = "dg1";
-            this.dg1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dg1.Size = new System.Drawing.Size(618, 150);
-            this.dg1.TabIndex = 4;
-            this.dg1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dg1_CellDoubleClick);
+            dg1.AllowUserToAddRows = false;
+            dg1.AllowUserToDeleteRows = false;
+            dg1.AllowUserToOrderColumns = true;
+            dg1.AllowUserToResizeRows = false;
+            dg1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dg1.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            dg1.Location = new System.Drawing.Point(16, 82);
+            dg1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            dg1.MultiSelect = false;
+            dg1.Name = "dg1";
+            dg1.RowHeadersWidth = 51;
+            dg1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            dg1.Size = new System.Drawing.Size(824, 231);
+            dg1.TabIndex = 4;
+            dg1.CellDoubleClick += dg1_CellDoubleClick;
             // 
             // button1
             // 
-            this.button1.Image = global::UStealth.Properties.Resources.refresh;
-            this.button1.Location = new System.Drawing.Point(598, 209);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(32, 29);
-            this.button1.TabIndex = 5;
-            this.toolTip1.SetToolTip(this.button1, "Refresh");
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            button1.Image = Properties.Resources.refresh;
+            button1.Location = new System.Drawing.Point(797, 322);
+            button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            button1.Name = "button1";
+            button1.Size = new System.Drawing.Size(43, 45);
+            button1.TabIndex = 5;
+            toolTip1.SetToolTip(button1, "Refresh");
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // textBox1
             // 
-            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox1.Font = new System.Drawing.Font("Calibri", 11F);
-            this.textBox1.Location = new System.Drawing.Point(12, 11);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(618, 36);
-            this.textBox1.TabIndex = 6;
-            this.textBox1.TabStop = false;
-            this.textBox1.Text = "Double click the drive to hide/show.  Note that the system and unrecognized drive" +
-    "s won\'t be touched for obvious reasons.  Use this utility at your own risk!  Alw" +
-    "ays backup!";
+            textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            textBox1.Font = new System.Drawing.Font("Calibri", 11F);
+            textBox1.Location = new System.Drawing.Point(16, 17);
+            textBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            textBox1.Multiline = true;
+            textBox1.Name = "textBox1";
+            textBox1.ReadOnly = true;
+            textBox1.Size = new System.Drawing.Size(824, 55);
+            textBox1.TabIndex = 6;
+            textBox1.TabStop = false;
+            textBox1.Text = "Double click the drive to hide/show.  Note that the system and unrecognized drives won't be touched for obvious reasons.  Use this utility at your own risk!  Always backup!";
             // 
             // ToggleMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(642, 242);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.dg1);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "ToggleMain";
-            this.Text = "U-Stealth";
-            ((System.ComponentModel.ISupportInitialize)(this.dg1)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(856, 372);
+            Controls.Add(textBox1);
+            Controls.Add(button1);
+            Controls.Add(dg1);
+            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
+            Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            Name = "ToggleMain";
+            Text = "U-Stealth";
+            ((System.ComponentModel.ISupportInitialize)dg1).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

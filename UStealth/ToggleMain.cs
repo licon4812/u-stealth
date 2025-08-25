@@ -22,7 +22,40 @@ namespace UStealth
         public ToggleMain()
         {
             InitializeComponent();
+            this.Resize += ToggleMain_Resize;
             PopulateDriveListBox();
+        }
+
+        private void ToggleMain_Resize(object sender, EventArgs e)
+        {
+            // Padding and minimums
+            int padding = 16;
+            int buttonWidth = button1.Width;
+            int buttonHeight = button1.Height;
+            int minTextBoxHeight = 55;
+            int minDataGridHeight = 100;
+            int minFormWidth = 400;
+            int minFormHeight = 200;
+
+            // Set minimum form size
+            this.MinimumSize = new Size(minFormWidth, minFormHeight);
+
+            // Resize textBox1 width to match form width minus padding
+            textBox1.Width = this.ClientSize.Width - 2 * padding;
+            textBox1.Location = new Point(padding, padding);
+
+            // Resize dg1 width and height to fill below textBox1 and above button1
+            int dg1Top = textBox1.Bottom + padding;
+            int dg1Height = this.ClientSize.Height - dg1Top - buttonHeight - 2 * padding;
+            dg1.Location = new Point(padding, dg1Top);
+            dg1.Width = this.ClientSize.Width - 2 * padding;
+            dg1.Height = Math.Max(dg1Height, minDataGridHeight);
+
+            // Make DataGridView columns fill the width
+            dg1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            // Place button1 at bottom right
+            button1.Location = new Point(this.ClientSize.Width - buttonWidth - padding, this.ClientSize.Height - buttonHeight - padding);
         }
 
         ///////////////////////////////////
