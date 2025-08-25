@@ -98,7 +98,18 @@ namespace UStealth
         {
             Cursor.Current = Cursors.WaitCursor;
             this.dg1.AutoGenerateColumns = true;
-            this.dg1.DataSource = GetDriveList();
+            var dt = GetDriveList();
+            if (dt != null)
+            {
+                // Sort by Drive Letter (column 1)
+                DataView dv = dt.DefaultView;
+                dv.Sort = "[Drive Letter] ASC";
+                this.dg1.DataSource = dv.ToTable();
+            }
+            else
+            {
+                this.dg1.DataSource = null;
+            }
             // Set column headers and widths to match new column order
             dg1.RowHeadersVisible = false;
             dg1.Columns[0].HeaderText = "";
@@ -117,6 +128,8 @@ namespace UStealth
             dg1.Columns[6].Width = 75;
             dg1.Columns[7].HeaderText = "DeviceID";
             dg1.Columns[7].Visible = false;
+            // Make DataGridView columns fill the width
+            dg1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             Cursor.Current = Cursors.Default;
         }
 
