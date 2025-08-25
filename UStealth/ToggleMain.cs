@@ -81,7 +81,7 @@ namespace UStealth
 
         public DataTable GetDriveList()
         {
-            string strIsSys = "", strInt, strMod, strMed, strSiz, strSta = "", strDev;
+            string strIsSys = "", strDriveLetter, strInt, strMod, strMed, strSiz, strSta = "", strDev;
             decimal decSiz;
             string sysDevice = "";
 
@@ -97,6 +97,7 @@ namespace UStealth
 
             DataTable dt = new DataTable();
             dt.Columns.Add("System Drive");
+            dt.Columns.Add("Drive Letter");
             dt.Columns.Add("Interface");
             dt.Columns.Add("Model");
             dt.Columns.Add("Mediatype");
@@ -163,7 +164,24 @@ namespace UStealth
                             strSta = "*UNKNOWN*";
                         }
                     }
-                    dt.Rows.Add(new object[] { strIsSys, strInt, strMod, strMed, strSiz, strSta, strDev });
+
+                    // Find drive letter(s) for this physical drive
+                    strDriveLetter = "";
+                    try
+                    {
+                        foreach (ManagementObject partition in mObj.GetRelated("Win32_DiskPartition"))
+                        {
+                            foreach (ManagementObject logicalDisk in partition.GetRelated("Win32_LogicalDisk"))
+                            {
+                                if (!string.IsNullOrEmpty(strDriveLetter))
+                                    strDriveLetter += ", ";
+                                strDriveLetter += logicalDisk["DeviceID"].ToString();
+                            }
+                        }
+                    }
+                    catch { }
+
+                    dt.Rows.Add(new object[] { strIsSys, strDriveLetter, strInt, strMod, strMed, strSiz, strSta, strDev });
                     strIsSys = "";
                 }
             }
