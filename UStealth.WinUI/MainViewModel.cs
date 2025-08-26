@@ -38,9 +38,9 @@ namespace UStealth.WinUI
             if (SelectedDrive == null)
                 return null;
             if (SelectedDrive.SystemDrive == "*SYSTEM*")
-                return "You cannot make changes to the System drive!|Impossibru!";
+                return "You cannot make changes to the System drive!|Impossible!";
             if (SelectedDrive.Status == "*UNKNOWN*")
-                return "You cannot make changes to an unknown boot sector type!|Impossibru!";
+                return "You cannot make changes to an unknown boot sector type!|Impossible!";
             var (hidden, result) = _driveManager.ToggleBoot(SelectedDrive);
             if (result == 99)
             {
