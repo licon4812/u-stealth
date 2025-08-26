@@ -290,21 +290,29 @@ namespace UStealth.DriveHelper
         {
             uint GENERIC_READ = 0x80000000;
             uint OPEN_EXISTING = 3;
+            Console.Error.WriteLine($"[ReadBootSector] Opening device: {device}");
             try
             {
                 using var handle = CreateFile(device, GENERIC_READ, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+                Console.Error.WriteLine($"[ReadBootSector] Handle valid: {!handle.IsInvalid}");
                 if (handle.IsInvalid)
+                {
+                    int err = Marshal.GetLastWin32Error();
+                    Console.Error.WriteLine($"[ReadBootSector] CreateFile failed. Win32Error: {err}");
                     return null;
+                }
                 int offset = 0;
                 byte[] buf = new byte[512];
                 int read = 0;
                 int moveToHigh;
                 SetFilePointer(handle, offset, out moveToHigh, 0);
                 ReadFile(handle, buf, 512, out read, IntPtr.Zero);
+                Console.Error.WriteLine($"[ReadBootSector] Read {read} bytes");
                 return buf;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.Error.WriteLine($"[ReadBootSector] Exception: {ex.Message}");
                 return null;
             }
         }
@@ -313,21 +321,44 @@ namespace UStealth.DriveHelper
         {
             uint GENERIC_WRITE = 0x40000000;
             uint FSCTL_LOCK_VOLUME = 0x00090018;
+            uint FSCTL_UNLOCK_VOLUME = 0x0009001C;
             uint OPEN_EXISTING = 3;
+            Console.Error.WriteLine($"[WriteBootSector] Opening device: {device}");
             int intOut;
-            using var handle = CreateFile(device, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
-            if (handle.IsInvalid)
-                return 1;
-            bool success = DeviceIoControl(handle, FSCTL_LOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
-            if (!success)
-                return 2;
-            int offset = 0;
-            int bytesWritten = 0;
-            int moveToHigh;
-            SetFilePointer(handle, offset, out moveToHigh, 0);
-            WriteFile(handle, bufToWrite, bufToWrite.Length, out bytesWritten, IntPtr.Zero);
-            // Verify
-            var bufVerify = ReadBootSector(device);
+            // Write and unlock in using block
+            using (var handle = CreateFile(device, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero))
+            {
+                Console.Error.WriteLine($"[WriteBootSector] Handle valid: {!handle.IsInvalid}");
+                if (handle.IsInvalid)
+                {
+                    int err = Marshal.GetLastWin32Error();
+                    Console.Error.WriteLine($"[WriteBootSector] CreateFile failed. Win32Error: {err}");
+                    return 1;
+                }
+                bool success = DeviceIoControl(handle, FSCTL_LOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                Console.Error.WriteLine($"[WriteBootSector] Lock success: {success}");
+                if (!success)
+                    return 2;
+                int offset = 0;
+                int bytesWritten = 0;
+                int moveToHigh;
+                SetFilePointer(handle, offset, out moveToHigh, 0);
+                WriteFile(handle, bufToWrite, bufToWrite.Length, out bytesWritten, IntPtr.Zero);
+                Console.Error.WriteLine($"[WriteBootSector] Wrote {bytesWritten} bytes");
+                // Unlock the volume before closing the handle
+                DeviceIoControl(handle, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+            }
+            // Now the handle is closed, try to re-open for reading
+            const int maxTries = 20;
+            const int delayMs = 500;
+            byte[] bufVerify = null;
+            for (int i = 0; i < maxTries; i++)
+            {
+                System.Threading.Thread.Sleep(delayMs);
+                bufVerify = ReadBootSector(device);
+                if (bufVerify != null)
+                    break;
+            }
             int lastIndex = Math.Min(bufVerify?.Length ?? 0, bufToWrite.Length) - 1;
             if (lastIndex >= 0 && bufVerify[lastIndex] == bufToWrite[lastIndex]) return 99;
             return 3;
