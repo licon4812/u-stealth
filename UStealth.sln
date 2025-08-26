@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UStealth.WinForms", "USteal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UStealth.WinUI", "UStealth.WinUI\UStealth.WinUI.csproj", "{F7A2D650-5482-4872-861E-B78949D24B44}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinUI.TableView", "WinUI.TableView\WinUI.TableView.csproj", "{EA889F0C-4B55-0829-CC5C-41CD73F5F627}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -43,6 +45,18 @@ Global
 		{F7A2D650-5482-4872-861E-B78949D24B44}.Release|x86.ActiveCfg = Release|x86
 		{F7A2D650-5482-4872-861E-B78949D24B44}.Release|x86.Build.0 = Release|x86
 		{F7A2D650-5482-4872-861E-B78949D24B44}.Release|x86.Deploy.0 = Release|x86
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Debug|x64.Build.0 = Debug|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Debug|x86.Build.0 = Debug|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Release|ARM64.Build.0 = Release|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Release|x64.ActiveCfg = Release|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Release|x64.Build.0 = Release|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Release|x86.ActiveCfg = Release|Any CPU
+		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

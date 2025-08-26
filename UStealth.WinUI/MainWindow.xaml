@@ -26,8 +26,54 @@
             x:Name="DrivesTableView"
             Grid.Row="1"
             Margin="0,16,0,0"
+            x:DataType="local:DriveInfoModel"
+            AutoGenerateColumns="False"
             DoubleTapped="DrivesTableView_DoubleTapped"
             ItemsSource="{x:Bind ViewModel.Drives}"
-            SelectionMode="Single" />
+            SelectionMode="Single">
+            <tableView:TableView.Columns>
+                <tableView:TableViewTextColumn
+                    Width="62"
+                    Binding="{Binding SystemDrive}"
+                    Header="System Drive"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="55"
+                    Binding="{Binding DriveLetter}"
+                    Header="Drive Letter"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="80"
+                    Binding="{Binding Interface}"
+                    Header="Interface"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="200"
+                    Binding="{Binding Model}"
+                    Header="Model"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="123"
+                    Binding="{Binding MediaType}"
+                    Header="Media type"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="75"
+                    Binding="{Binding Size}"
+                    Header="Size"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="75"
+                    Binding="{Binding Status}"
+                    Header="Status"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="0"
+                    Binding="{Binding DeviceID}"
+                    Header="DeviceID"
+                    IsReadOnly="True"
+                    Visibility="Collapsed" />
+            </tableView:TableView.Columns>
+        </tableView:TableView>
     </Grid>
 </Window>

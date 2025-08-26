@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UStealth.WinUI
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public partial class MainViewModel : INotifyPropertyChanged
     {
         private readonly DriveManager _driveManager = new();
         public ObservableCollection<DriveInfoModel> Drives { get; } = new();

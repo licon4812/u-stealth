@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 namespace UStealth.WinUI
 {
     [WinRT.GeneratedBindableCustomPropertyAttribute]
-    public class DriveInfoModel : INotifyPropertyChanged
+    public partial class DriveInfoModel : INotifyPropertyChanged
     {
         private string _systemDrive;
         private string _driveLetter;
