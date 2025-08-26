@@ -43,34 +43,46 @@ namespace UStealth.WinUI
             string sysDriveLetter = sysDrive.TrimEnd('\\');
             foreach (var drive in DriveInfo.GetDrives())
             {
-                string driveLetter = drive.Name.TrimEnd('\\');
-                string strIsSys = driveLetter.Equals(sysDriveLetter, StringComparison.OrdinalIgnoreCase) ? "*SYSTEM*" : "";
+                string driveLetter = null;
+                string strIsSys = null;
                 string strInt = "N/A";
                 string strMod = "N/A";
-                string strMed = drive.DriveType.ToString(); 
-                string volLabel = drive.VolumeLabel;
-                string format = drive.DriveFormat;
-                string strDev = drive.Name;
-                string strSiz = drive.IsReady ?
-                    (drive.TotalSize switch
-                    {
-                        > 999999999999 => Math.Round((drive.TotalSize / 1000000000000.0), 1) + " TB",
-                        > 999999999 => Math.Round((drive.TotalSize / 1000000000.0), 1) + " GB",
-                        > 999999 => Math.Round((drive.TotalSize / 1000000.0), 1) + " MB",
-                        > 999 => Math.Round((drive.TotalSize / 1000.0), 1) + " KB",
-                        _ => Math.Round((double)drive.TotalSize, 1).ToString(CultureInfo.InvariantCulture)
-                    }) : "N/A";
+                string strMed = null;
+                string volLabel = null;
+                string format = null;
+                string strDev = null;
+                string strSiz = null;
                 string strSta = "*UNKNOWN*";
-                // Try to get boot sector status if possible
-                if (drive.IsReady && drive.DriveType == DriveType.Fixed)
+                try
                 {
-                    // Try to get the physical drive number for this logical drive
-                    // This is a best-effort guess: assumes C: = PhysicalDrive0, D: = PhysicalDrive1, etc.
-                    // For more accuracy, SetupAPI or DeviceIoControl with IOCTL_STORAGE_GET_DEVICE_NUMBER is needed
-                    string physicalDrive = $"\\.\\PhysicalDrive{driveLetter[0] - 'C'}";
-                    byte[] bufR = ReadBoot(physicalDrive);
-                    if (bufR != null)
-                        strSta = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
+                    driveLetter = drive.Name.TrimEnd('\\');
+                    strIsSys = driveLetter.Equals(sysDriveLetter, StringComparison.OrdinalIgnoreCase) ? "*SYSTEM*" : "";
+                    strMed = drive.DriveType.ToString();
+                    volLabel = drive.VolumeLabel;
+                    format = drive.DriveFormat;
+                    strDev = drive.Name;
+                    strSiz = drive.IsReady ?
+                        (drive.TotalSize switch
+                        {
+                            > 999999999999 => Math.Round((drive.TotalSize / 1000000000000.0), 1) + " TB",
+                            > 999999999 => Math.Round((drive.TotalSize / 1000000000.0), 1) + " GB",
+                            > 999999 => Math.Round((drive.TotalSize / 1000000.0), 1) + " MB",
+                            > 999 => Math.Round((drive.TotalSize / 1000.0), 1) + " KB",
+                            _ => Math.Round((double)drive.TotalSize, 1).ToString(CultureInfo.InvariantCulture)
+                        }) : "N/A";
+                    // Try to get boot sector status if possible
+                    if (drive.IsReady && drive.DriveType == DriveType.Fixed)
+                    {
+                        string physicalDrive = $"\\.\\PhysicalDrive{driveLetter[0] - 'C'}";
+                        byte[] bufR = ReadBoot(physicalDrive);
+                        if (bufR != null)
+                            strSta = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
+                    }
+                }
+                catch (Exception)
+                {
+                    // Skip this drive if any property throws (e.g. device not ready)
+                    continue;
                 }
                 drives.Add(new DriveInfoModel
                 {
@@ -83,7 +95,7 @@ namespace UStealth.WinUI
                     Format = format,
                     Size = strSiz,
                     Status = strSta,
-                    DeviceID = drive.Name
+                    DeviceID = strDev
                 });
             }
             return drives;
