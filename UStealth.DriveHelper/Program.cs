@@ -66,8 +66,91 @@ namespace UStealth.DriveHelper
                             result = WriteBoot(device, hexData);
                             break;
                         case "listdrives":
-                            result = ListDrives();
-                            break;
+                            // Interactive Spectre.Console table view
+                            var drives = new List<dynamic>();
+                            try
+                            {
+                                var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
+                                foreach (ManagementObject drive in searcher.Get())
+                                {
+                                    string deviceId = drive["DeviceID"]?.ToString();
+                                    string model = drive["Model"]?.ToString();
+                                    string interfaceType = drive["InterfaceType"]?.ToString();
+                                    string mediaType = drive["MediaType"]?.ToString();
+                                    string size = drive["Size"]?.ToString();
+                                    string status = "*UNKNOWN*";
+                                    string driveLetters = "";
+                                    string volLabel = null;
+                                    string format = null;
+                                    try
+                                    {
+                                        foreach (ManagementObject partition in drive.GetRelated("Win32_DiskPartition"))
+                                        {
+                                            foreach (ManagementObject logicalDisk in partition.GetRelated("Win32_LogicalDisk"))
+                                            {
+                                                if (!string.IsNullOrEmpty(driveLetters))
+                                                    driveLetters += ", ";
+                                                driveLetters += logicalDisk["DeviceID"]?.ToString();
+                                                volLabel = logicalDisk["VolumeName"]?.ToString();
+                                                format = logicalDisk["FileSystem"]?.ToString();
+                                            }
+                                        }
+                                    }
+                                    catch { }
+                                    var bufR = ReadBootSector(deviceId);
+                                    if (bufR == null)
+                                        status = "*UNKNOWN*";
+                                    else
+                                        status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
+                                    drives.Add(new {
+                                        DeviceID = deviceId,
+                                        Model = model,
+                                        Interface = interfaceType,
+                                        MediaType = mediaType,
+                                        Size = size,
+                                        VolumeLabel = volLabel,
+                                        Format = format,
+                                        DriveLetter = driveLetters,
+                                        Status = status
+                                    });
+                                }
+                                // Print as Spectre.Console table
+                                var table = new Table();
+                                table.AddColumn("DeviceID");
+                                table.AddColumn("Model");
+                                table.AddColumn("Interface");
+                                table.AddColumn("MediaType");
+                                table.AddColumn("Size");
+                                table.AddColumn("VolumeLabel");
+                                table.AddColumn("Format");
+                                table.AddColumn("DriveLetter");
+                                table.AddColumn("Status");
+                                foreach (dynamic d in drives)
+                                {
+                                    table.AddRow(
+                                        (string)(d.DeviceID ?? ""),
+                                        (string)(d.Model ?? ""),
+                                        (string)(d.Interface ?? ""),
+                                        (string)(d.MediaType ?? ""),
+                                        FormatSize((string)d.Size),
+                                        (string)(d.VolumeLabel ?? ""),
+                                        (string)(d.Format ?? ""),
+                                        (string)(d.DriveLetter ?? ""),
+                                        (string)(d.Status ?? "")
+                                    );
+                                }
+                                AnsiConsole.Write(table);
+                                // skip the rest of the loop
+                                continue;
+                            }
+                            catch (Exception ex)
+                            {
+                                AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
+                                continue;
+                            }
+                        default:
+                            AnsiConsole.MarkupLine($"[red]Unknown command: {command}[/]");
+                            continue;
                     }
                     AnsiConsole.MarkupLine($"[grey]Command finished with code {result}[/]");
                     if (!AnsiConsole.Confirm("Do you want to perform another action?", true))
@@ -255,7 +338,7 @@ namespace UStealth.DriveHelper
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error: {ex.Message}");
+                AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
                 return 111;
             }
         }
