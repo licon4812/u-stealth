@@ -15,6 +15,8 @@ namespace UStealth.WinUI
         private string _size;
         private string _status;
         private string _deviceID;
+        private string _volLabel;
+        private string _format;
 
         public string SystemDrive
         {
@@ -55,6 +57,18 @@ namespace UStealth.WinUI
         {
             get => _deviceID;
             set { _deviceID = value; OnPropertyChanged(nameof(DeviceID)); }
+        }
+
+        public string VolumeLabel 
+        {
+            get => _volLabel;
+            set { _volLabel = value; OnPropertyChanged(nameof(VolumeLabel)); }
+        }
+
+        public string Format
+        {
+            get => _format;
+            set { _format = value; OnPropertyChanged(nameof(Format)); }
         }
 
         private void OnPropertyChanged(string propertyName)

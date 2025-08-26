@@ -49,6 +49,16 @@
                     IsReadOnly="True" />
                 <tableView:TableViewTextColumn
                     Width="200"
+                    Binding="{Binding VolumeLabel}"
+                    Header="Volume Label"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="200"
+                    Binding="{Binding Format}"
+                    Header="Format"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="200"
                     Binding="{Binding Model}"
                     Header="Model"
                     IsReadOnly="True" />

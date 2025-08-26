@@ -45,9 +45,11 @@ namespace UStealth.WinUI
             {
                 string driveLetter = drive.Name.TrimEnd('\\');
                 string strIsSys = driveLetter.Equals(sysDriveLetter, StringComparison.OrdinalIgnoreCase) ? "*SYSTEM*" : "";
-                string strInt = drive.DriveType.ToString();
+                string strInt = "N/A";
                 string strMod = "N/A";
-                string strMed = "N/A";
+                string strMed = drive.DriveType.ToString(); 
+                string volLabel = drive.VolumeLabel;
+                string format = drive.DriveFormat;
                 string strDev = drive.Name;
                 string strSiz = drive.IsReady ?
                     (drive.TotalSize switch
@@ -77,6 +79,8 @@ namespace UStealth.WinUI
                     Interface = strInt,
                     Model = strMod,
                     MediaType = strMed,
+                    VolumeLabel = volLabel,
+                    Format = format,
                     Size = strSiz,
                     Status = strSta,
                     DeviceID = drive.Name
