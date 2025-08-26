@@ -33,12 +33,10 @@
             SelectionMode="Single">
             <tableView:TableView.Columns>
                 <tableView:TableViewTextColumn
-                    Width="62"
                     Binding="{Binding SystemDrive}"
                     Header="System Drive"
                     IsReadOnly="True" />
                 <tableView:TableViewTextColumn
-                    Width="55"
                     Binding="{Binding DriveLetter}"
                     Header="Drive Letter"
                     IsReadOnly="True" />
@@ -48,12 +46,10 @@
                     Header="Interface"
                     IsReadOnly="True" />-->
                 <tableView:TableViewTextColumn
-                    Width="200"
                     Binding="{Binding VolumeLabel}"
                     Header="Volume Label"
                     IsReadOnly="True" />
                 <tableView:TableViewTextColumn
-                    Width="200"
                     Binding="{Binding Format}"
                     Header="Format"
                     IsReadOnly="True" />
@@ -63,26 +59,22 @@
                     Header="Model"
                     IsReadOnly="True" />-->
                 <tableView:TableViewTextColumn
-                    Width="123"
                     Binding="{Binding MediaType}"
                     Header="Media type"
                     IsReadOnly="True" />
                 <tableView:TableViewTextColumn
-                    Width="75"
                     Binding="{Binding Size}"
                     Header="Size"
                     IsReadOnly="True" />
                 <tableView:TableViewTextColumn
-                    Width="75"
                     Binding="{Binding Status}"
                     Header="Status"
                     IsReadOnly="True" />
-                <tableView:TableViewTextColumn
-                    Width="0"
+                <!--<tableView:TableViewTextColumn
                     Binding="{Binding DeviceID}"
                     Header="DeviceID"
                     IsReadOnly="True"
-                    Visibility="Collapsed" />
+                    Visibility="Collapsed" />-->
             </tableView:TableView.Columns>
         </tableView:TableView>
     </Grid>
