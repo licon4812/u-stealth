@@ -40,11 +40,11 @@
                     Binding="{Binding DriveLetter}"
                     Header="Drive Letter"
                     IsReadOnly="True" />
-                <!--<tableView:TableViewTextColumn
+                <tableView:TableViewTextColumn
                     Width="80"
                     Binding="{Binding Interface}"
                     Header="Interface"
-                    IsReadOnly="True" />-->
+                    IsReadOnly="True" />
                 <tableView:TableViewTextColumn
                     Binding="{Binding VolumeLabel}"
                     Header="Volume Label"
@@ -53,11 +53,11 @@
                     Binding="{Binding Format}"
                     Header="Format"
                     IsReadOnly="True" />
-                <!--<tableView:TableViewTextColumn
+                <tableView:TableViewTextColumn
                     Width="200"
                     Binding="{Binding Model}"
                     Header="Model"
-                    IsReadOnly="True" />-->
+                    IsReadOnly="True" />
                 <tableView:TableViewTextColumn
                     Binding="{Binding MediaType}"
                     Header="Media type"

@@ -40,8 +40,8 @@ namespace UStealth.WinUI
                     Title = "Administrator Required",
                     Content = "This app needs to be run as administrator to function properly. Relaunch as administrator?",
                     PrimaryButtonText = "Relaunch as Admin",
-                    CloseButtonText = "Exit",
-                    XamlRoot = this.Content.XamlRoot
+                    SecondaryButtonText = "Exit",
+                    XamlRoot = Content.XamlRoot
                 };
 
                 _= dialog.ShowAsync().AsTask().ContinueWith(async t =>
@@ -61,19 +61,11 @@ namespace UStealth.WinUI
                             Process.Start(psi);
                         }
                         catch { /* User cancelled UAC or error */ }
-                    }
-
-                    try
+                        DispatcherQueue.TryEnqueue(Close);
+                    } 
+                    else if(result == ContentDialogResult.Secondary)
                     {
-                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                        {
-                            Application.Current.Exit();
-                        });
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
+                        DispatcherQueue.TryEnqueue(Close);
                     }
                 });
             }
