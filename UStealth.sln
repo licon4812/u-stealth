@@ -6,8 +6,13 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UStealth.WinForms", "UStealth.WinForms\UStealth.WinForms.csproj", "{398B4E66-76A0-4EAB-E55D-1E0F4B399DCF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UStealth.WinUI", "UStealth.WinUI\UStealth.WinUI.csproj", "{F7A2D650-5482-4872-861E-B78949D24B44}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A} = {CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinUI.TableView", "WinUI.TableView\WinUI.TableView.csproj", "{EA889F0C-4B55-0829-CC5C-41CD73F5F627}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UStealth.DriveHelper", "UStealth.DriveHelper\UStealth.DriveHelper.csproj", "{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +62,18 @@ Global
 		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Release|x64.Build.0 = Release|Any CPU
 		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Release|x86.ActiveCfg = Release|Any CPU
 		{EA889F0C-4B55-0829-CC5C-41CD73F5F627}.Release|x86.Build.0 = Release|Any CPU
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Debug|x64.ActiveCfg = Debug|x64
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Debug|x64.Build.0 = Debug|x64
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Debug|x86.ActiveCfg = Debug|x86
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Debug|x86.Build.0 = Debug|x86
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Release|ARM64.Build.0 = Release|Any CPU
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Release|x64.ActiveCfg = Release|x64
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Release|x64.Build.0 = Release|x64
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Release|x86.ActiveCfg = Release|x86
+		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

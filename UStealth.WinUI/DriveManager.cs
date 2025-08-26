@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 using Microsoft.Win32.SafeHandles;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace UStealth.WinUI
 {
@@ -39,66 +42,71 @@ namespace UStealth.WinUI
         public List<DriveInfoModel> GetDriveList()
         {
             var drives = new List<DriveInfoModel>();
-            string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
-            string sysDriveLetter = sysDrive.TrimEnd('\\');
-            foreach (var drive in DriveInfo.GetDrives())
+            try
             {
-                string driveLetter = null;
-                string strIsSys = null;
-                string strInt = "N/A";
-                string strMod = "N/A";
-                string strMed = null;
-                string volLabel = null;
-                string format = null;
-                string strDev = null;
-                string strSiz = null;
-                string strSta = "*UNKNOWN*";
-                try
+                var psi = new ProcessStartInfo
                 {
-                    driveLetter = drive.Name.TrimEnd('\\');
-                    strIsSys = driveLetter.Equals(sysDriveLetter, StringComparison.OrdinalIgnoreCase) ? "*SYSTEM*" : "";
-                    strMed = drive.DriveType.ToString();
-                    volLabel = drive.VolumeLabel;
-                    format = drive.DriveFormat;
-                    strDev = drive.Name;
-                    strSiz = drive.IsReady ?
-                        (drive.TotalSize switch
-                        {
-                            > 999999999999 => Math.Round((drive.TotalSize / 1000000000000.0), 1) + " TB",
-                            > 999999999 => Math.Round((drive.TotalSize / 1000000000.0), 1) + " GB",
-                            > 999999 => Math.Round((drive.TotalSize / 1000000.0), 1) + " MB",
-                            > 999 => Math.Round((drive.TotalSize / 1000.0), 1) + " KB",
-                            _ => Math.Round((double)drive.TotalSize, 1).ToString(CultureInfo.InvariantCulture)
-                        }) : "N/A";
-                    // Try to get boot sector status if possible
-                    if (drive.IsReady && drive.DriveType == DriveType.Fixed)
-                    {
-                        string physicalDrive = $"\\.\\PhysicalDrive{driveLetter[0] - 'C'}";
-                        byte[] bufR = ReadBoot(physicalDrive);
-                        if (bufR != null)
-                            strSta = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
-                    }
+                    FileName = "UStealth.DriveHelper.exe",
+                    Arguments = "listdrives",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using var process = Process.Start(psi);
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                int exitCode = process.ExitCode;
+                if (exitCode == 0 && !string.IsNullOrWhiteSpace(output))
+                {
+                    var driveList = JsonSerializer.Deserialize(output, DriveInfoModelJsonContext.Default.ListDriveInfoModel);
+                    if (driveList != null)
+                        drives.AddRange(driveList);
                 }
-                catch (Exception)
+                // Now get boot status for each drive
+                foreach (var drive in drives)
                 {
-                    // Skip this drive if any property throws (e.g. device not ready)
-                    continue;
+                    drive.Status = GetBootStatusFromHelper(drive.DeviceID);
                 }
-                drives.Add(new DriveInfoModel
-                {
-                    SystemDrive = strIsSys,
-                    DriveLetter = driveLetter,
-                    Interface = strInt,
-                    Model = strMod,
-                    MediaType = strMed,
-                    VolumeLabel = volLabel,
-                    Format = format,
-                    Size = strSiz,
-                    Status = strSta,
-                    DeviceID = strDev
-                });
             }
+            catch { }
             return drives;
+        }
+
+        private string GetBootStatusFromHelper(string device)
+        {
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "UStealth.DriveHelper.exe",
+                    Arguments = $"readboot \"{device}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using var process = Process.Start(psi);
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                int exitCode = process.ExitCode;
+                output = output?.Trim();
+                if (exitCode == 0 && !string.IsNullOrWhiteSpace(output) && output.Length >= 1024)
+                {
+                    // output is hex string, last two bytes are 510, 511
+                    // 510 = AA, 511 = AB or AA
+                    string lastByte = output.Substring(output.Length - 2, 2);
+                    if (lastByte.Equals("AA", StringComparison.OrdinalIgnoreCase))
+                        return "NORMAL";
+                    if (lastByte.Equals("AB", StringComparison.OrdinalIgnoreCase))
+                        return "HIDDEN";
+                    return "*UNKNOWN*";
+                }
+            }
+            catch { }
+            return "*UNKNOWN*";
         }
 
         public byte[] ReadBoot(string strDev)
@@ -171,5 +179,11 @@ namespace UStealth.WinUI
             }
             return (null, 0);
         }
+    }
+
+    // Add a partial context class for source generation
+    [JsonSerializable(typeof(List<DriveInfoModel>))]
+    internal partial class DriveInfoModelJsonContext : JsonSerializerContext
+    {
     }
 }
