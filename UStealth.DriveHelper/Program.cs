@@ -5,6 +5,7 @@ using Microsoft.Win32.SafeHandles;
 using System.Text.Json;
 using System.Management;
 using System.Collections.Generic;
+using Spectre.Console;
 
 namespace UStealth.DriveHelper
 {
@@ -14,29 +15,86 @@ namespace UStealth.DriveHelper
         {
             if (args.Length < 1)
             {
-                Console.Error.WriteLine("Usage: UStealth.DriveHelper <toggleboot|readboot|writeboot|listdrives> [args...]");
-                return 100;
+                while (true)
+                {
+                    // Interactive Spectre.Console menu
+                    var command = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                            .Title("[green]Select a command[/]")
+                            .AddChoices(new[] { "toggleboot", "readboot", "writeboot", "listdrives", "exit" })
+                    );
+
+                    if (command == "exit")
+                        break;
+
+                    string device = null;
+                    string hexData = null;
+
+                    if (command is "toggleboot" or "readboot" or "writeboot")
+                    {
+                        // List drives and let user select
+                        var drives = GetDrivesForPrompt();
+                        if (drives.Count == 0)
+                        {
+                            AnsiConsole.MarkupLine("[red]No drives found.[/]");
+                            continue;
+                        }
+                        device = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .Title("[green]Select a device[/]")
+                                .AddChoices(drives)
+                        );
+                        // Extract deviceId from label
+                        device = device.Split(' ')[0];
+                    }
+                    if (command == "writeboot")
+                    {
+                        hexData = AnsiConsole.Ask<string>("[green]Enter hex data to write to boot sector[/]");
+                    }
+
+                    // Call the appropriate method
+                    int result = 0;
+                    switch (command)
+                    {
+                        case "toggleboot":
+                            result = ToggleBoot(device);
+                            break;
+                        case "readboot":
+                            result = ReadBoot(device);
+                            break;
+                        case "writeboot":
+                            result = WriteBoot(device, hexData);
+                            break;
+                        case "listdrives":
+                            result = ListDrives();
+                            break;
+                    }
+                    AnsiConsole.MarkupLine($"[grey]Command finished with code {result}[/]");
+                    if (!AnsiConsole.Confirm("Do you want to perform another action?", true))
+                        break;
+                }
+                return 0;
             }
 
-            string command = args[0].ToLowerInvariant();
-            string device = args.Length > 1 ? args[1] : null;
+            string commandArg = args[0].ToLowerInvariant();
+            string deviceArg = args.Length > 1 ? args[1] : null;
 
             try
             {
-                switch (command)
+                switch (commandArg)
                 {
                     case "toggleboot":
-                        return ToggleBoot(device);
+                        return ToggleBoot(deviceArg);
                     case "readboot":
-                        return ReadBoot(device);
+                        return ReadBoot(deviceArg);
                     case "writeboot":
-                        if (args.Length >= 3) return WriteBoot(device, args[2]);
+                        if (args.Length >= 3) return WriteBoot(deviceArg, args[2]);
                         Console.Error.WriteLine("Missing data argument for writeboot.");
                         return 101;
                     case "listdrives":
                         return ListDrives();
                     default:
-                        Console.Error.WriteLine($"Unknown command: {command}");
+                        Console.Error.WriteLine($"Unknown command: {commandArg}");
                         return 102;
                 }
             }
@@ -45,6 +103,38 @@ namespace UStealth.DriveHelper
                 Console.Error.WriteLine($"Error: {ex.Message}");
                 return 110;
             }
+        }
+
+        private static List<string> GetDrivesForPrompt()
+        {
+            var drives = new List<string>();
+            try
+            {
+                var searcher = new System.Management.ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
+                foreach (System.Management.ManagementObject drive in searcher.Get())
+                {
+                    string deviceId = drive["DeviceID"]?.ToString();
+                    string model = drive["Model"]?.ToString();
+                    string size = drive["Size"]?.ToString();
+                    string label = $"{deviceId} ({model}, {FormatSize(size)})";
+                    drives.Add(label);
+                }
+            }
+            catch { }
+            return drives;
+        }
+
+        private static string FormatSize(string sizeStr)
+        {
+            if (long.TryParse(sizeStr, out long size))
+            {
+                if (size > 999999999999) return $"{size / 1_000_000_000_000.0:F1} TB";
+                if (size > 999999999) return $"{size / 1_000_000_000.0:F1} GB";
+                if (size > 999999) return $"{size / 1_000_000.0:F1} MB";
+                if (size > 999) return $"{size / 1_000.0:F1} KB";
+                return size.ToString();
+            }
+            return sizeStr;
         }
 
         // Example: Toggle boot sector signature between 0xAA and 0xAB
@@ -189,7 +279,7 @@ namespace UStealth.DriveHelper
 
         [DllImport("kernel32", SetLastError = true)]
         internal extern static int WriteFile(SafeFileHandle handle, byte[] bytes, 
-            int numBytesToWrite, out int numBytesWritten, IntPtr overlapped_MustBeZero);
+            int numBytesToWrite, out int numBytesWritten, IntPtr overlapped_MustBe_ZERO);
 
         [DllImport("kernel32", ExactSpelling = true, SetLastError = true)]
         private static extern bool DeviceIoControl(SafeFileHandle hDevice, uint dwIoControlCode, 
