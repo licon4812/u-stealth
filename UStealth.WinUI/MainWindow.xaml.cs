@@ -4,6 +4,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using System.Diagnostics;
+using System.Security.Principal;
 
 namespace UStealth.WinUI
 {
@@ -14,6 +16,67 @@ namespace UStealth.WinUI
         public MainWindow()
         {
             InitializeComponent();
+            if (Content is FrameworkElement fe)
+            {
+                fe.Loaded += MainWindow_Loaded;
+            }
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            CheckAndPromptForElevation();
+        }
+
+        private void CheckAndPromptForElevation()
+        {
+            using var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            bool isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+
+            if (!isAdmin)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Administrator Required",
+                    Content = "This app needs to be run as administrator to function properly. Relaunch as administrator?",
+                    PrimaryButtonText = "Relaunch as Admin",
+                    CloseButtonText = "Exit",
+                    XamlRoot = this.Content.XamlRoot
+                };
+
+                _= dialog.ShowAsync().AsTask().ContinueWith(async t =>
+                {
+                    var result = await t;
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        var exePath = Process.GetCurrentProcess().MainModule?.FileName;
+                        var psi = new ProcessStartInfo
+                        {
+                            FileName = exePath,
+                            UseShellExecute = true,
+                            Verb = "runas"
+                        };
+                        try
+                        {
+                            Process.Start(psi);
+                        }
+                        catch { /* User cancelled UAC or error */ }
+                    }
+
+                    try
+                    {
+                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            Application.Current.Exit();
+                        });
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+                });
+            }
         }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
