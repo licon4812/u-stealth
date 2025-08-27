@@ -114,5 +114,10 @@ namespace UStealth.WinUI
         {
             ProgressRing.IsActive = isLoading;
         }
+
+        private void Control_OnIsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

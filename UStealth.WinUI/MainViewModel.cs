@@ -42,7 +42,9 @@ namespace UStealth.WinUI
             if (drives != null)
             {
                 foreach (var d in drives.OrderBy(x => x.DriveLetter))
+                {
                     Drives.Add(d);
+                }
             }
         }
 
@@ -114,106 +116,6 @@ namespace UStealth.WinUI
             }
         }
 
-        public async Task<string> ReadBootAsync()
-        {
-            if (SelectedDrive == null)
-                return null;
-            if (SelectedDrive.IsSystemDrive)
-                return "You cannot make changes to the System drive!|Impossible!";
-            if (SelectedDrive.Status == "*UNKNOWN*")
-                return "You cannot make changes to an unknown boot sector type!|Impossible!";
-
-            string helperExe = "UStealth.DriveHelper.exe";
-            string args = $"readboot \"{SelectedDrive.DeviceID}\"";
-            try
-            {
-                var psi = new ProcessStartInfo
-                {
-                    FileName = helperExe,
-                    Arguments = args,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-                using var process = Process.Start(psi);
-                string output = await process.StandardOutput.ReadToEndAsync();
-                string error = await process.StandardError.ReadToEndAsync();
-                await process.WaitForExitAsync();
-                int exitCode = process.ExitCode;
-                output = output?.Trim();
-                error = error?.Trim();
-
-                if (exitCode == 0 && !string.IsNullOrWhiteSpace(output))
-                {
-                    return output; // Hex string of boot sector
-                }
-                else if (!string.IsNullOrWhiteSpace(error))
-                {
-                    return $"{error}|Error";
-                }
-                else
-                {
-                    return "Failed to read boot sector.|Error";
-                }
-            }
-            catch (System.Exception ex)
-            {
-                return $"Failed to launch helper: {ex.Message}|Error";
-            }
-        }
-
-        public async Task<string> WriteBootAsync(string hexData)
-        {
-            if (SelectedDrive == null)
-                return null;
-            if (SelectedDrive.IsSystemDrive)
-                return "You cannot make changes to the System drive!|Impossible!";
-            if (SelectedDrive.Status == "*UNKNOWN*")
-                return "You cannot make changes to an unknown boot sector type!|Impossible!";
-            if (string.IsNullOrWhiteSpace(hexData))
-                return "No data provided to write.|Error";
-
-            string helperExe = "UStealth.DriveHelper.exe";
-            string args = $"writeboot \"{SelectedDrive.DeviceID}\" {hexData}";
-            try
-            {
-                var psi = new ProcessStartInfo
-                {
-                    FileName = helperExe,
-                    Arguments = args,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-                using var process = Process.Start(psi);
-                string output = await process.StandardOutput.ReadToEndAsync();
-                string error = await process.StandardError.ReadToEndAsync();
-                await process.WaitForExitAsync();
-                int exitCode = process.ExitCode;
-                output = output?.Trim();
-                error = error?.Trim();
-
-                if (exitCode == 99 && output == "OK")
-                {
-                    LoadDrives();
-                    return "Boot sector written successfully.|Done";
-                }
-                else if (!string.IsNullOrWhiteSpace(error))
-                {
-                    return $"{error}|Error";
-                }
-                else
-                {
-                    return "Failed to write boot sector.|Error";
-                }
-            }
-            catch (System.Exception ex)
-            {
-                return $"Failed to launch helper: {ex.Message}|Error";
-            }
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
