@@ -67,12 +67,7 @@ namespace UStealth.WinUI
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-#if DEBUG
-                    CreateNoWindow = false
-#else
                     CreateNoWindow = true
-#endif
-
                 };
                 using var process = Process.Start(psi);
                 string output = await process.StandardOutput.ReadToEndAsync();

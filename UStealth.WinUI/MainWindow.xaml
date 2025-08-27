@@ -50,8 +50,8 @@
                 ItemsSource="{x:Bind ViewModel.Drives}"
                 SelectionMode="Single">
                 <tableView:TableView.Columns>
-                    <tableView:TableViewTextColumn
-                        Binding="{Binding SystemDrive}"
+                    <tableView:TableViewCheckBoxColumn
+                        Binding="{Binding IsSystemDrive}"
                         Header="System Drive"
                         IsReadOnly="True" />
                     <tableView:TableViewTextColumn
