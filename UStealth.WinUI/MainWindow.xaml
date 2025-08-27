@@ -39,10 +39,13 @@
 
         <Grid Grid.Row="1" Padding="16">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
+            <ProgressRing x:Name="ProgressRing" IsActive="False" />
             <tableView:TableView
                 x:Name="DrivesTableView"
+                Grid.Row="1"
                 Margin="0,16,0,0"
                 x:DataType="local:DriveInfoModel"
                 AutoGenerateColumns="False"

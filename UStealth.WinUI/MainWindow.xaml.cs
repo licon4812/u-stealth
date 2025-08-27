@@ -75,13 +75,16 @@ namespace UStealth.WinUI
             }
         }
 
-        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        private async void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.LoadDrives();
+            IsLoading(true);
+            await Task.Run(() => ViewModel.LoadDrives());
+            IsLoading(false);
         }
 
         private async void DrivesTableView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
+            IsLoading(true);
             if (DrivesTableView.SelectedItem is DriveInfoModel selected)
             {
                 ViewModel.SelectedDrive = selected;
@@ -92,6 +95,7 @@ namespace UStealth.WinUI
                     await ShowDialog(parts[0], parts.Length > 1 ? parts[1] : "");
                 }
             }
+            IsLoading(false);
         }
 
         private async Task ShowDialog(string content, string title)
@@ -104,6 +108,11 @@ namespace UStealth.WinUI
                 XamlRoot = this.Content.XamlRoot
             };
             await dialog.ShowAsync();
+        }
+
+        private void IsLoading(bool isLoading)
+        {
+            ProgressRing.IsActive = isLoading;
         }
     }
 }
