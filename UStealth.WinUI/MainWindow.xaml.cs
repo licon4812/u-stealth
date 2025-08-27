@@ -16,6 +16,10 @@ namespace UStealth.WinUI
         public MainWindow()
         {
             InitializeComponent();
+            ExtendsContentIntoTitleBar = true;
+            AppIcon.ImageSource = ViewModel.AppIconUri;
+            TitleBar.Title = $"{ViewModel.AppName} - {ViewModel.AppVersion}";
+            SetTitleBar(TitleBar);
             if (Content is FrameworkElement fe)
             {
                 fe.Loaded += MainWindow_Loaded;

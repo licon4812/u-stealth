@@ -1,9 +1,11 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace UStealth.WinUI
 {
@@ -16,6 +18,16 @@ namespace UStealth.WinUI
         {
             get => _selectedDrive;
             set { _selectedDrive = value; OnPropertyChanged(); }
+        }
+
+        public string AppName => "U-Stealth";
+        public string AppVersion => $"v{GetAppVersion()}";
+        public BitmapImage AppIconUri => new BitmapImage(new Uri("ms-appx:///Assets/StoreLogo.png"));
+
+        private static string GetAppVersion()
+        {
+            var version = Windows.ApplicationModel.Package.Current.Id.Version;
+            return $"{version.Major}.{version.Minor}.{version.Build}";
         }
 
         public MainViewModel()

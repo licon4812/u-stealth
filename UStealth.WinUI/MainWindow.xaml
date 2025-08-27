@@ -14,68 +14,82 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid Padding="16" RowDefinitions="Auto,*">
-        <Button
-            x:Name="RefreshButton"
-            Width="100"
-            Height="32"
-            HorizontalAlignment="Right"
-            Click="RefreshButton_Click"
-            Content="Refresh" />
-        <tableView:TableView
-            x:Name="DrivesTableView"
-            Grid.Row="1"
-            Margin="0,16,0,0"
-            x:DataType="local:DriveInfoModel"
-            AutoGenerateColumns="False"
-            DoubleTapped="DrivesTableView_DoubleTapped"
-            ItemsSource="{x:Bind ViewModel.Drives}"
-            SelectionMode="Single">
-            <tableView:TableView.Columns>
-                <tableView:TableViewTextColumn
-                    Binding="{Binding SystemDrive}"
-                    Header="System Drive"
-                    IsReadOnly="True" />
-                <tableView:TableViewTextColumn
-                    Binding="{Binding DriveLetter}"
-                    Header="Drive Letter"
-                    IsReadOnly="True" />
-                <tableView:TableViewTextColumn
-                    Width="80"
-                    Binding="{Binding Interface}"
-                    Header="Interface"
-                    IsReadOnly="True" />
-                <tableView:TableViewTextColumn
-                    Binding="{Binding VolumeLabel}"
-                    Header="Volume Label"
-                    IsReadOnly="True" />
-                <tableView:TableViewTextColumn
-                    Binding="{Binding Format}"
-                    Header="Format"
-                    IsReadOnly="True" />
-                <tableView:TableViewTextColumn
-                    Width="200"
-                    Binding="{Binding Model}"
-                    Header="Model"
-                    IsReadOnly="True" />
-                <tableView:TableViewTextColumn
-                    Binding="{Binding MediaType}"
-                    Header="Media type"
-                    IsReadOnly="True" />
-                <tableView:TableViewTextColumn
-                    Binding="{Binding Size}"
-                    Header="Size"
-                    IsReadOnly="True" />
-                <tableView:TableViewTextColumn
-                    Binding="{Binding Status}"
-                    Header="Status"
-                    IsReadOnly="True" />
-                <!--<tableView:TableViewTextColumn
-                    Binding="{Binding DeviceID}"
-                    Header="DeviceID"
-                    IsReadOnly="True"
-                    Visibility="Collapsed" />-->
-            </tableView:TableView.Columns>
-        </tableView:TableView>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TitleBar x:Name="TitleBar" Grid.Row="0">
+            <TitleBar.IconSource>
+                <ImageIconSource x:Name="AppIcon" />
+            </TitleBar.IconSource>
+            <StackPanel
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="8">
+                <Button
+                    x:Name="RefreshButton"
+                    Width="100"
+                    Height="32"
+                    HorizontalAlignment="Right"
+                    Click="RefreshButton_Click"
+                    Content="Refresh" />
+            </StackPanel>
+        </TitleBar>
+
+        <Grid Grid.Row="1" Padding="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <tableView:TableView
+                x:Name="DrivesTableView"
+                Margin="0,16,0,0"
+                x:DataType="local:DriveInfoModel"
+                AutoGenerateColumns="False"
+                DoubleTapped="DrivesTableView_DoubleTapped"
+                ItemsSource="{x:Bind ViewModel.Drives}"
+                SelectionMode="Single">
+                <tableView:TableView.Columns>
+                    <tableView:TableViewTextColumn
+                        Binding="{Binding SystemDrive}"
+                        Header="System Drive"
+                        IsReadOnly="True" />
+                    <tableView:TableViewTextColumn
+                        Binding="{Binding DriveLetter}"
+                        Header="Drive Letter"
+                        IsReadOnly="True" />
+                    <tableView:TableViewTextColumn
+                        Width="80"
+                        Binding="{Binding Interface}"
+                        Header="Interface"
+                        IsReadOnly="True" />
+                    <tableView:TableViewTextColumn
+                        Binding="{Binding VolumeLabel}"
+                        Header="Volume Label"
+                        IsReadOnly="True" />
+                    <tableView:TableViewTextColumn
+                        Binding="{Binding Format}"
+                        Header="Format"
+                        IsReadOnly="True" />
+                    <tableView:TableViewTextColumn
+                        Width="200"
+                        Binding="{Binding Model}"
+                        Header="Model"
+                        IsReadOnly="True" />
+                    <tableView:TableViewTextColumn
+                        Binding="{Binding MediaType}"
+                        Header="Media type"
+                        IsReadOnly="True" />
+                    <tableView:TableViewTextColumn
+                        Binding="{Binding Size}"
+                        Header="Size"
+                        IsReadOnly="True" />
+                    <tableView:TableViewTextColumn
+                        Binding="{Binding Status}"
+                        Header="Status"
+                        IsReadOnly="True" />
+                </tableView:TableView.Columns>
+            </tableView:TableView>
+        </Grid>
     </Grid>
 </Window>
