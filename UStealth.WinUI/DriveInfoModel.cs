@@ -7,7 +7,7 @@ namespace UStealth.WinUI
     [WinRT.GeneratedBindableCustomPropertyAttribute]
     public partial class DriveInfoModel : INotifyPropertyChanged
     {
-        private string _systemDrive;
+        private bool _isSystemDrive;
         private string _driveLetter;
         private string _interface;
         private string _model;
@@ -18,10 +18,10 @@ namespace UStealth.WinUI
         private string _volLabel;
         private string _format;
 
-        public string SystemDrive
+        public bool IsSystemDrive
         {
-            get => _systemDrive;
-            set { _systemDrive = value; OnPropertyChanged(nameof(SystemDrive)); }
+            get => _isSystemDrive;
+            set { _isSystemDrive = value; OnPropertyChanged(nameof(IsSystemDrive)); }
         }
         public string DriveLetter
         {

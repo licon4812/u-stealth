@@ -12,6 +12,7 @@ namespace UStealth.DriveHelper
 {
     internal class Program
     {
+        private static DriveInfoDisplay? SystemDrive { get; set; } = FindSystemDrive();
         static int Main(string[] args)
         {
             if (args.Length < 1)
@@ -71,6 +72,7 @@ namespace UStealth.DriveHelper
                             var drives = new List<DriveInfoDisplay>();
                             try
                             {
+                                string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
                                 var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
                                 foreach (ManagementObject drive in searcher.Get())
                                 {
@@ -83,6 +85,8 @@ namespace UStealth.DriveHelper
                                     string driveLetters = "";
                                     string volLabel = null;
                                     string format = null;
+                                    bool systemDrive = false;
+
                                     try
                                     {
                                         foreach (ManagementObject partition in drive.GetRelated("Win32_DiskPartition"))
@@ -92,6 +96,10 @@ namespace UStealth.DriveHelper
                                                 if (!string.IsNullOrEmpty(driveLetters))
                                                     driveLetters += ", ";
                                                 driveLetters += logicalDisk["DeviceID"]?.ToString();
+                                                if (driveLetters == sysDrive)
+                                                {
+                                                    systemDrive = true;
+                                                }
                                                 volLabel = logicalDisk["VolumeName"]?.ToString();
                                                 format = logicalDisk["FileSystem"]?.ToString();
                                             }
@@ -103,7 +111,10 @@ namespace UStealth.DriveHelper
                                         status = "*UNKNOWN*";
                                     else
                                         status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
-                                    drives.Add(new DriveInfoDisplay {
+
+                                    var driveInfo = new DriveInfoDisplay
+                                    {
+                                        IsSystemDrive = systemDrive,
                                         DeviceID = deviceId,
                                         Model = model,
                                         Interface = interfaceType,
@@ -113,10 +124,16 @@ namespace UStealth.DriveHelper
                                         Format = format,
                                         DriveLetter = driveLetters,
                                         Status = status
-                                    });
+                                    };
+                                    if (systemDrive)
+                                    {
+                                        SystemDrive = driveInfo;
+                                    }
+                                    drives.Add(driveInfo);
                                 }
                                 // Print as Spectre.Console table
                                 var table = new Table();
+                                table.AddColumn("SystemDrive");
                                 table.AddColumn("DeviceID");
                                 table.AddColumn("Model");
                                 table.AddColumn("Interface");
@@ -129,6 +146,7 @@ namespace UStealth.DriveHelper
                                 foreach (var d in drives)
                                 {
                                     table.AddRow(
+                                        d.IsSystemDrive.ToString() ?? "",
                                         d.DeviceID ?? "",
                                         d.Model ?? "",
                                         d.Interface ?? "",
@@ -208,6 +226,70 @@ namespace UStealth.DriveHelper
             return drives;
         }
 
+        // Finds and returns the system drive info, or null if not found
+        private static DriveInfoDisplay? FindSystemDrive()
+        {
+            string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
+            var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
+            foreach (ManagementObject drive in searcher.Get())
+            {
+                string deviceId = drive["DeviceID"]?.ToString();
+                string model = drive["Model"]?.ToString();
+                string interfaceType = drive["InterfaceType"]?.ToString();
+                string mediaType = drive["MediaType"]?.ToString();
+                string size = drive["Size"]?.ToString();
+                string status = "*UNKNOWN*";
+                string driveLetters = "";
+                string volLabel = null;
+                string format = null;
+                bool systemDrive = false;
+
+                try
+                {
+                    foreach (ManagementObject partition in drive.GetRelated("Win32_DiskPartition"))
+                    {
+                        foreach (ManagementObject logicalDisk in partition.GetRelated("Win32_LogicalDisk"))
+                        {
+                            if (!string.IsNullOrEmpty(driveLetters))
+                                driveLetters += ", ";
+                            driveLetters += logicalDisk["DeviceID"]?.ToString();
+                            if (driveLetters == sysDrive)
+                            {
+                                systemDrive = true;
+                            }
+                            volLabel = logicalDisk["VolumeName"]?.ToString();
+                            format = logicalDisk["FileSystem"]?.ToString();
+                        }
+                    }
+                }
+                catch { }
+
+                var bufR = ReadBootSector(deviceId);
+                if (bufR == null)
+                    status = "*UNKNOWN*";
+                else
+                    status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
+
+                if (systemDrive)
+                {
+                    return new DriveInfoDisplay
+                    {
+                        IsSystemDrive = true,
+                        DeviceID = deviceId,
+                        Model = model,
+                        Interface = interfaceType,
+                        MediaType = mediaType,
+                        Size = FormatSize(size),
+                        VolumeLabel = volLabel,
+                        Format = format,
+                        DriveLetter = driveLetters,
+                        Status = status
+                    };
+                }
+            }
+            return null;
+        }
+
         private static string FormatSize(string sizeStr)
         {
             if (long.TryParse(sizeStr, out long size))
@@ -224,6 +306,11 @@ namespace UStealth.DriveHelper
         // Example: Toggle boot sector signature between 0xAA and 0xAB
         static int ToggleBoot(string device)
         {
+            if(device == SystemDrive?.DeviceID)
+            {
+                Console.Error.WriteLine("You cannot make changes to the System drive!");
+                return 4;
+            }
             var buf = ReadBootSector(device);
             if (buf == null)
             {
@@ -285,6 +372,7 @@ namespace UStealth.DriveHelper
             var drives = new List<DriveInfoDisplay>();
             try
             {
+                string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
                 var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
                 foreach (ManagementObject drive in searcher.Get())
                 {
@@ -297,6 +385,7 @@ namespace UStealth.DriveHelper
                     string driveLetters = "";
                     string volLabel = null;
                     string format = null;
+                    bool systemDrive = false;
 
                     // Find drive letters and volume info
                     try
@@ -308,6 +397,10 @@ namespace UStealth.DriveHelper
                                 if (!string.IsNullOrEmpty(driveLetters))
                                     driveLetters += ", ";
                                 driveLetters += logicalDisk["DeviceID"]?.ToString();
+                                if (driveLetters == sysDrive)
+                                {
+                                    systemDrive = true;
+                                }
                                 volLabel = logicalDisk["VolumeName"]?.ToString();
                                 format = logicalDisk["FileSystem"]?.ToString();
                             }
@@ -323,6 +416,7 @@ namespace UStealth.DriveHelper
                         status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
 
                     drives.Add(new DriveInfoDisplay {
+                        IsSystemDrive = systemDrive,
                         DeviceID = deviceId,
                         Model = model,
                         Interface = interfaceType,
@@ -452,6 +546,7 @@ namespace UStealth.DriveHelper
         // Make DriveInfoDisplay public so it can be used by the source generator
         public class DriveInfoDisplay
         {
+            public bool IsSystemDrive { get; set; }
             public string DeviceID { get; set; }
             public string Model { get; set; }
             public string Interface { get; set; }

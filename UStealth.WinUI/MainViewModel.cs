@@ -50,7 +50,7 @@ namespace UStealth.WinUI
         {
             if (SelectedDrive == null)
                 return null;
-            if (SelectedDrive.SystemDrive == "*SYSTEM*")
+            if (SelectedDrive.IsSystemDrive)
                 return "You cannot make changes to the System drive!|Impossible!";
             if (SelectedDrive.Status == "*UNKNOWN*")
                 return "You cannot make changes to an unknown boot sector type!|Impossible!";
@@ -123,7 +123,7 @@ namespace UStealth.WinUI
         {
             if (SelectedDrive == null)
                 return null;
-            if (SelectedDrive.SystemDrive == "*SYSTEM*")
+            if (SelectedDrive.IsSystemDrive)
                 return "You cannot make changes to the System drive!|Impossible!";
             if (SelectedDrive.Status == "*UNKNOWN*")
                 return "You cannot make changes to an unknown boot sector type!|Impossible!";
@@ -172,7 +172,7 @@ namespace UStealth.WinUI
         {
             if (SelectedDrive == null)
                 return null;
-            if (SelectedDrive.SystemDrive == "*SYSTEM*")
+            if (SelectedDrive.IsSystemDrive)
                 return "You cannot make changes to the System drive!|Impossible!";
             if (SelectedDrive.Status == "*UNKNOWN*")
                 return "You cannot make changes to an unknown boot sector type!|Impossible!";
