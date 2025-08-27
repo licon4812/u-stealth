@@ -49,7 +49,6 @@
                 Margin="0,16,0,0"
                 x:DataType="local:DriveInfoModel"
                 AutoGenerateColumns="False"
-                DoubleTapped="DrivesTableView_DoubleTapped"
                 ItemsSource="{x:Bind ViewModel.Drives}"
                 SelectionMode="Single">
                 <tableView:TableView.Columns>
@@ -93,10 +92,10 @@
                                 <StackPanel>
                                     <ToggleSwitch
                                         x:Name="StatusToggle"
-                                        IsEnabledChanged="Control_OnIsEnabledChanged"
                                         IsOn="{Binding Status, Mode=TwoWay, Converter={StaticResource StatusToIsOnConverter}}"
                                         OffContent="NORMAL"
                                         OnContent="HIDDEN"
+                                        Toggled="StatusToggle_OnToggled"
                                         Visibility="{Binding Status, Converter={StaticResource StatusToTemplateColumnVisibilityConverter}}" />
                                     <TextBlock Text="{Binding Status}" Visibility="{Binding Status, Converter={StaticResource UnknownStatusVisibilityConverter}}" />
                                 </StackPanel>

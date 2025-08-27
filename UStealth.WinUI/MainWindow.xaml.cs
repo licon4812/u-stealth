@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using System.Diagnostics;
 using System.Security.Principal;
+using System.Linq;
 
 namespace UStealth.WinUI
 {
@@ -24,6 +25,12 @@ namespace UStealth.WinUI
             {
                 fe.Loaded += MainWindow_Loaded;
             }
+            ViewModel.LoadDrivesFailed += ViewModel_LoadDrivesFailed;
+        }
+
+        private async void ViewModel_LoadDrivesFailed(object sender, string error)
+        {
+            await ShowDialog(error, "Error");
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -75,26 +82,10 @@ namespace UStealth.WinUI
             }
         }
 
-        private async void RefreshButton_Click(object sender, RoutedEventArgs e)
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
             IsLoading(true);
-            await Task.Run(() => ViewModel.LoadDrives());
-            IsLoading(false);
-        }
-
-        private async void DrivesTableView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
-            IsLoading(true);
-            if (DrivesTableView.SelectedItem is DriveInfoModel selected)
-            {
-                ViewModel.SelectedDrive = selected;
-                var result = await ViewModel.ToggleSelectedDriveAsync();
-                if (!string.IsNullOrEmpty(result))
-                {
-                    var parts = result.Split('|');
-                    await ShowDialog(parts[0], parts.Length > 1 ? parts[1] : "");
-                }
-            }
+            ViewModel.LoadDrives(); // Call directly on UI thread
             IsLoading(false);
         }
 
@@ -115,9 +106,45 @@ namespace UStealth.WinUI
             ProgressRing.IsActive = isLoading;
         }
 
-        private void Control_OnIsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private async void StatusToggle_OnToggled(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            try
+            {
+                IsLoading(true);
+                if (sender is not ToggleSwitch { DataContext: DriveInfoModel drive } toggle)
+                    return;
+
+                // Get the latest status for this drive
+                var driveManager = new DriveManager();
+                string? latestStatus = driveManager.GetDriveList()
+                    .FirstOrDefault(d => d.DeviceID == drive.DeviceID)?.Status;
+
+                // Determine what the toggle is switching to
+                bool togglingToHidden = toggle.IsOn; // Assuming IsOn means "HIDDEN", Off means "NORMAL"
+                bool alreadyHidden = string.Equals(latestStatus, "HIDDEN", StringComparison.OrdinalIgnoreCase);
+                bool alreadyNormal = string.Equals(latestStatus, "NORMAL", StringComparison.OrdinalIgnoreCase);
+
+                if ((togglingToHidden && alreadyHidden) || (!togglingToHidden && alreadyNormal))
+                {
+                    // No change needed, revert toggle to match actual status
+                    toggle.IsOn = alreadyHidden;
+                    IsLoading(false);
+                    return;
+                }
+                ViewModel.SelectedDrive = drive;
+                var result = await ViewModel.ToggleSelectedDriveAsync();
+                if (!string.IsNullOrEmpty(result))
+                {
+                    var parts = result.Split('|');
+                    await ShowDialog(parts[0], parts.Length > 1 ? parts[1] : "");
+                }
+                IsLoading(false);
+            }
+            catch (Exception ex)
+            { 
+                 await ShowDialog(ex.Message, "Error");
+                IsLoading(false);
+            }
         }
     }
 }

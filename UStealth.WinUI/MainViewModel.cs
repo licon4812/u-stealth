@@ -30,21 +30,31 @@ namespace UStealth.WinUI
             return $"{version.Major}.{version.Minor}.{version.Build}";
         }
 
+        public event EventHandler<string> LoadDrivesFailed;
+
         public MainViewModel()
         {
             LoadDrives();
         }
 
-        public void LoadDrives()
+        public async void LoadDrives()
         {
-            Drives.Clear();
-            var drives = _driveManager.GetDriveList();
-            if (drives != null)
+            try
             {
-                foreach (var d in drives.OrderBy(x => x.DriveLetter))
+                Drives.Clear();
+                // Fetch drives in background
+                var drives = await Task.Run(() => _driveManager.GetDriveList());
+                if (drives != null)
                 {
-                    Drives.Add(d);
+                    foreach (var d in drives.OrderBy(x => x.DriveLetter))
+                    {
+                        Drives.Add(d); // This runs on UI thread
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LoadDrivesFailed?.Invoke(this, $"Failed to load drives: {ex.Message}");
             }
         }
 

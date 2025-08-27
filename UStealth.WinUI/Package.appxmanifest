@@ -10,7 +10,7 @@
   <Identity
     Name="4942d94d-7731-4cce-9bce-5e92cb29d4b4"
     Publisher="CN=jalic"
-    Version="1.0.0.0" />
+    Version="1.0.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="4942d94d-7731-4cce-9bce-5e92cb29d4b4" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
