@@ -7,6 +7,8 @@ using System.Management;
 using System.Collections.Generic;
 using Spectre.Console;
 using System.Text.Json.Serialization;
+using System.Diagnostics;
+using System.Security.Principal;
 
 namespace UStealth.DriveHelper
 {
@@ -15,15 +17,36 @@ namespace UStealth.DriveHelper
         private static DriveInfoDisplay? SystemDrive { get; set; } = FindSystemDrive();
         static int Main(string[] args)
         {
+            // Elevation check at the very beginning of interactive mode
             if (args.Length < 1)
             {
+                if (!IsRunningAsAdministrator())
+                {
+                    AnsiConsole.MarkupLine("[yellow]This tool requires administrator privileges. Relaunching with elevation...[/]");
+                    try
+                    {
+                        var psi = new ProcessStartInfo
+                        {
+                            FileName = Environment.ProcessPath ?? Environment.ProcessPath,
+                            UseShellExecute = true,
+                            Verb = "runas"
+                        };
+                        Process.Start(psi);
+                    }
+                    catch (Exception ex)
+                    {
+                        AnsiConsole.MarkupLine($"[red]Failed to elevate: {ex.Message}[/]");
+                    }
+                    return 123; // Exit current process
+                }
+
                 while (true)
                 {
                     // Interactive Spectre.Console menu
                     var command = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                             .Title("[green]Select a command[/]")
-                            .AddChoices(new[] { "toggleboot", "readboot", "writeboot", "listdrives", "exit" })
+                            .AddChoices(new[] { "toggleboot", "readboot", "listdrives", "exit" })
                     );
 
                     if (command == "exit")
@@ -32,7 +55,7 @@ namespace UStealth.DriveHelper
                     string device = null;
                     string hexData = null;
 
-                    if (command is "toggleboot" or "readboot" or "writeboot")
+                    if (command is "toggleboot" or "readboot")
                     {
                         // List drives and let user select
                         var drives = GetDrivesForPrompt();
@@ -63,9 +86,6 @@ namespace UStealth.DriveHelper
                             break;
                         case "readboot":
                             result = ReadBoot(device);
-                            break;
-                        case "writeboot":
-                            result = WriteBoot(device, hexData);
                             break;
                         case "listdrives":
                             // Interactive Spectre.Console table view
@@ -189,10 +209,6 @@ namespace UStealth.DriveHelper
                         return ToggleBoot(deviceArg);
                     case "readboot":
                         return ReadBoot(deviceArg);
-                    case "writeboot":
-                        if (args.Length >= 3) return WriteBoot(deviceArg, args[2]);
-                        Console.Error.WriteLine("Missing data argument for writeboot.");
-                        return 101;
                     case "listdrives":
                         return ListDrives();
                     default:
@@ -205,6 +221,14 @@ namespace UStealth.DriveHelper
                 Console.Error.WriteLine($"Error: {ex.Message}");
                 return 110;
             }
+        }
+
+        // Helper to check for admin rights
+        private static bool IsRunningAsAdministrator()
+        {
+            using var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
         private static List<string> GetDrivesForPrompt()
@@ -351,22 +375,6 @@ namespace UStealth.DriveHelper
             return 0;
         }
 
-        static int WriteBoot(string device, string hexData)
-        {
-            try
-            {
-                var buf = Convert.FromHexString(hexData);
-                int res = WriteBootSector(device, buf);
-                Console.WriteLine(res == 99 ? "OK" : "FAILED");
-                return res;
-            }
-            catch
-            {
-                Console.Error.WriteLine("Invalid hex data.");
-                return 2;
-            }
-        }
-
         static int ListDrives()
         {
             var drives = new List<DriveInfoDisplay>();
@@ -468,15 +476,15 @@ namespace UStealth.DriveHelper
         {
             uint GENERIC_READ = 0x80000000;
             uint OPEN_EXISTING = 3;
-            Console.Error.WriteLine($"[ReadBootSector] Opening device: {device}");
+            // Console.Error.WriteLine($"[ReadBootSector] Opening device: {device}");
             try
             {
                 using var handle = CreateFile(device, GENERIC_READ, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
-                Console.Error.WriteLine($"[ReadBootSector] Handle valid: {!handle.IsInvalid}");
+                // Console.Error.WriteLine($"[ReadBootSector] Handle valid: {!handle.IsInvalid}");
                 if (handle.IsInvalid)
                 {
                     int err = Marshal.GetLastWin32Error();
-                    Console.Error.WriteLine($"[ReadBootSector] CreateFile failed. Win32Error: {err}");
+                    // Console.Error.WriteLine($"[ReadBootSector] CreateFile failed. Win32Error: {err}");
                     return null;
                 }
                 int offset = 0;
@@ -485,12 +493,12 @@ namespace UStealth.DriveHelper
                 int moveToHigh;
                 SetFilePointer(handle, offset, out moveToHigh, 0);
                 ReadFile(handle, buf, 512, out read, IntPtr.Zero);
-                Console.Error.WriteLine($"[ReadBootSector] Read {read} bytes");
+                // Console.Error.WriteLine($"[ReadBootSector] Read {read} bytes");
                 return buf;
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"[ReadBootSector] Exception: {ex.Message}");
+                // Console.Error.WriteLine($"[ReadBootSector] Exception: {ex.Message}");
                 return null;
             }
         }
@@ -501,20 +509,20 @@ namespace UStealth.DriveHelper
             uint FSCTL_LOCK_VOLUME = 0x00090018;
             uint FSCTL_UNLOCK_VOLUME = 0x0009001C;
             uint OPEN_EXISTING = 3;
-            Console.Error.WriteLine($"[WriteBootSector] Opening device: {device}");
+            // Console.Error.WriteLine($"[WriteBootSector] Opening device: {device}");
             int intOut;
             // Write and unlock in using block
             using (var handle = CreateFile(device, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero))
             {
-                Console.Error.WriteLine($"[WriteBootSector] Handle valid: {!handle.IsInvalid}");
+                // Console.Error.WriteLine($"[WriteBootSector] Handle valid: {!handle.IsInvalid}");
                 if (handle.IsInvalid)
                 {
                     int err = Marshal.GetLastWin32Error();
-                    Console.Error.WriteLine($"[WriteBootSector] CreateFile failed. Win32Error: {err}");
+                   // Console.Error.WriteLine($"[WriteBootSector] CreateFile failed. Win32Error: {err}");
                     return 1;
                 }
                 bool success = DeviceIoControl(handle, FSCTL_LOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
-                Console.Error.WriteLine($"[WriteBootSector] Lock success: {success}");
+                // Console.Error.WriteLine($"[WriteBootSector] Lock success: {success}");
                 if (!success)
                     return 2;
                 int offset = 0;
@@ -522,7 +530,7 @@ namespace UStealth.DriveHelper
                 int moveToHigh;
                 SetFilePointer(handle, offset, out moveToHigh, 0);
                 WriteFile(handle, bufToWrite, bufToWrite.Length, out bytesWritten, IntPtr.Zero);
-                Console.Error.WriteLine($"[WriteBootSector] Wrote {bytesWritten} bytes");
+                // Console.Error.WriteLine($"[WriteBootSector] Wrote {bytesWritten} bytes");
                 // Unlock the volume before closing the handle
                 DeviceIoControl(handle, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
             }
