@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 using System.Text.Json;
-using System.Management;
+using WmiLight;
 using System.Collections.Generic;
 using Spectre.Console;
 using System.Text.Json.Serialization;
@@ -21,6 +21,7 @@ namespace UStealth.DriveHelper
             // Elevation check at the very beginning of interactive mode
             if (args.Length < 1)
             {
+#if !DEBUG
                 if (!IsRunningAsAdministrator())
                 {
                     AnsiConsole.MarkupLine("[yellow]This tool requires administrator privileges. Relaunching with elevation...[/]");
@@ -40,6 +41,7 @@ namespace UStealth.DriveHelper
                     }
                     return 123; // Exit current process
                 }
+#endif
 
                 while (true)
                 {
@@ -94,8 +96,9 @@ namespace UStealth.DriveHelper
                             try
                             {
                                 string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
-                                var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
-                                foreach (ManagementObject drive in searcher.Get())
+                                using var connection = new WmiConnection();
+                                var diskDrives = connection.CreateQuery("SELECT * FROM Win32_DiskDrive");
+                                foreach (var drive in diskDrives)
                                 {
                                     string deviceId = drive["DeviceID"]?.ToString();
                                     string model = drive["Model"]?.ToString();
@@ -110,9 +113,11 @@ namespace UStealth.DriveHelper
 
                                     try
                                     {
-                                        foreach (ManagementObject partition in drive.GetRelated("Win32_DiskPartition"))
+                                        var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
+                                        foreach (var partition in partitionQuery)
                                         {
-                                            foreach (ManagementObject logicalDisk in partition.GetRelated("Win32_LogicalDisk"))
+                                            var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
+                                            foreach (var logicalDisk in logicalQuery)
                                             {
                                                 if (!string.IsNullOrEmpty(driveLetters))
                                                     driveLetters += ", ";
@@ -237,8 +242,9 @@ namespace UStealth.DriveHelper
             var drives = new List<string>();
             try
             {
-                var searcher = new System.Management.ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
-                foreach (System.Management.ManagementObject drive in searcher.Get())
+                using var connection = new WmiConnection();
+                var diskDrives = connection.CreateQuery("SELECT DeviceID, Model, Size FROM Win32_DiskDrive");
+                foreach (var drive in diskDrives)
                 {
                     string deviceId = drive["DeviceID"]?.ToString();
                     string model = drive["Model"]?.ToString();
@@ -255,8 +261,9 @@ namespace UStealth.DriveHelper
         private static DriveInfoDisplay? FindSystemDrive()
         {
             string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
-            var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
-            foreach (ManagementObject drive in searcher.Get())
+            using var connection = new WmiConnection();
+            var diskDrives = connection.CreateQuery("SELECT * FROM Win32_DiskDrive");
+            foreach (var drive in diskDrives)
             {
                 string deviceId = drive["DeviceID"]?.ToString();
                 string model = drive["Model"]?.ToString();
@@ -271,9 +278,11 @@ namespace UStealth.DriveHelper
 
                 try
                 {
-                    foreach (ManagementObject partition in drive.GetRelated("Win32_DiskPartition"))
+                    var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
+                    foreach (var partition in partitionQuery)
                     {
-                        foreach (ManagementObject logicalDisk in partition.GetRelated("Win32_LogicalDisk"))
+                        var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
+                        foreach (var logicalDisk in logicalQuery)
                         {
                             if (!string.IsNullOrEmpty(driveLetters))
                                 driveLetters += ", ";
@@ -313,6 +322,11 @@ namespace UStealth.DriveHelper
                 }
             }
             return null;
+        }
+
+        private static string EscapeWmiString(string input)
+        {
+            return input?.Replace("\\", "\\\\") ?? string.Empty;
         }
 
         private static string FormatSize(string sizeStr)
@@ -382,8 +396,9 @@ namespace UStealth.DriveHelper
             try
             {
                 string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
-                var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
-                foreach (ManagementObject drive in searcher.Get())
+                using var connection = new WmiConnection();
+                var diskDrives = connection.CreateQuery("SELECT * FROM Win32_DiskDrive");
+                foreach (var drive in diskDrives)
                 {
                     string deviceId = drive["DeviceID"]?.ToString();
                     string model = drive["Model"]?.ToString();
@@ -399,9 +414,11 @@ namespace UStealth.DriveHelper
                     // Find drive letters and volume info
                     try
                     {
-                        foreach (ManagementObject partition in drive.GetRelated("Win32_DiskPartition"))
+                        var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
+                        foreach (var partition in partitionQuery)
                         {
-                            foreach (ManagementObject logicalDisk in partition.GetRelated("Win32_LogicalDisk"))
+                            var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
+                            foreach (var logicalDisk in logicalQuery)
                             {
                                 if (!string.IsNullOrEmpty(driveLetters))
                                     driveLetters += ", ";

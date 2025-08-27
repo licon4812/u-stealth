@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UStealth.Tests", "UStealth.Tests\UStealth.Tests.csproj", "{020689EF-C91F-2DC2-CB85-824697C7E217}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UStealth.ModularPipelines", "UStealth.ModularPipelines\UStealth.ModularPipelines.csproj", "{EFC76260-3694-4486-9B4D-F2B567DB525D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -93,6 +95,18 @@ Global
 		{020689EF-C91F-2DC2-CB85-824697C7E217}.Release|x64.Build.0 = Release|x64
 		{020689EF-C91F-2DC2-CB85-824697C7E217}.Release|x86.ActiveCfg = Release|x86
 		{020689EF-C91F-2DC2-CB85-824697C7E217}.Release|x86.Build.0 = Release|x86
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Debug|x64.Build.0 = Debug|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Debug|x86.Build.0 = Debug|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Release|ARM64.Build.0 = Release|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Release|x64.ActiveCfg = Release|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Release|x64.Build.0 = Release|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Release|x86.ActiveCfg = Release|Any CPU
+		{EFC76260-3694-4486-9B4D-F2B567DB525D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
