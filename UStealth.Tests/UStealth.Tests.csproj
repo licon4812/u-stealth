@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Platforms>x86;x64;ARM64;AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" Version="0.57.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UStealth.DriveHelper\UStealth.DriveHelper.csproj" />
+  </ItemGroup>
+
+</Project>

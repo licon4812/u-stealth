@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UStealth.Tests", "UStealth.Tests\UStealth.Tests.csproj", "{020689EF-C91F-2DC2-CB85-824697C7E217}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -79,6 +81,18 @@ Global
 		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Release|x64.Build.0 = Release|x64
 		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Release|x86.ActiveCfg = Release|x86
 		{CF779017-9EDB-7AAD-4A85-47AA56DBDE0A}.Release|x86.Build.0 = Release|x86
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Debug|ARM64.Build.0 = Debug|ARM64
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Debug|x64.ActiveCfg = Debug|x64
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Debug|x64.Build.0 = Debug|x64
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Debug|x86.ActiveCfg = Debug|x86
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Debug|x86.Build.0 = Debug|x86
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Release|ARM64.ActiveCfg = Release|ARM64
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Release|ARM64.Build.0 = Release|ARM64
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Release|x64.ActiveCfg = Release|x64
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Release|x64.Build.0 = Release|x64
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Release|x86.ActiveCfg = Release|x86
+		{020689EF-C91F-2DC2-CB85-824697C7E217}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,6 +10,7 @@ using System.Text.Json.Serialization;
 using System.Diagnostics;
 using System.Security.Principal;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("UStealth.Tests")]
 namespace UStealth.DriveHelper
 {
     internal class Program
