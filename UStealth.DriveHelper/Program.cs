@@ -113,10 +113,10 @@ namespace UStealth.DriveHelper
 
                                     try
                                     {
-                                        var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{EscapeWmiString(deviceId)}'}} WHERE AssocClass = Win32_DiskDriveToDiskPartition");
+                                        var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
                                         foreach (var partition in partitionQuery)
                                         {
-                                            var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{EscapeWmiString(partition["DeviceID"]?.ToString())}'}} WHERE AssocClass = Win32_LogicalDiskToPartition");
+                                            var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
                                             foreach (var logicalDisk in logicalQuery)
                                             {
                                                 if (!string.IsNullOrEmpty(driveLetters))
@@ -278,10 +278,10 @@ namespace UStealth.DriveHelper
 
                 try
                 {
-                    var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{EscapeWmiString(deviceId)}'}} WHERE AssocClass = Win32_DiskDriveToDiskPartition");
+                    var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
                     foreach (var partition in partitionQuery)
                     {
-                        var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{EscapeWmiString(partition["DeviceID"]?.ToString())}'}} WHERE AssocClass = Win32_LogicalDiskToPartition");
+                        var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
                         foreach (var logicalDisk in logicalQuery)
                         {
                             if (!string.IsNullOrEmpty(driveLetters))
@@ -414,10 +414,10 @@ namespace UStealth.DriveHelper
                     // Find drive letters and volume info
                     try
                     {
-                        var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{EscapeWmiString(deviceId)}'}} WHERE AssocClass = Win32_DiskDriveToDiskPartition");
+                        var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
                         foreach (var partition in partitionQuery)
                         {
-                            var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{EscapeWmiString(partition["DeviceID"]?.ToString())}'}} WHERE AssocClass = Win32_LogicalDiskToPartition");
+                            var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
                             foreach (var logicalDisk in logicalQuery)
                             {
                                 if (!string.IsNullOrEmpty(driveLetters))
