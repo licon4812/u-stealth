@@ -30,9 +30,10 @@ Coming soon
 
 ### GitHub Releases
 
-| Release Name                                             | Version | Download Link                                                           |
-|----------------------------------------------------------|---------|-------------------------------------------------------------------------|
-| Migrated to the Windows App SDK and Released CLI version | 1.0.1.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/1.0.1.0) |
+| Release Name                                             | Version | Download Link                                                              |
+|----------------------------------------------------------|---------|----------------------------------------------------------------------------|
+| CLI 1.0.2.0 Native AOT								   | 1.0.2.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/CLI-1.0.2.0)|				
+| Migrated to the Windows App SDK and Released CLI version | 1.0.1.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/1.0.1.0)    |
 
 ## Legacy Version
 
