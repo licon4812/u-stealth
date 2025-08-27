@@ -18,7 +18,7 @@ U-Stealth has been rebuilt in the windows app sdk and is available here:
 
 ### WinGet
 
-Coming soon
+`winget install 9PP5QM8RK8XQ`
 
 ## U-Stealth CLI
 
