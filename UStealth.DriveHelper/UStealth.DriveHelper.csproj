@@ -8,6 +8,9 @@
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <Nullable>enable</Nullable>
     <SelfContained>true</SelfContained>
+    <IsAotCompatible>true</IsAotCompatible>
+    <PublishAot>False</PublishAot>
+    <PublishTrimmed>False</PublishTrimmed>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.50.0" />

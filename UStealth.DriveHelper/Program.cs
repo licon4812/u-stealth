@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Management;
 using System.Collections.Generic;
 using Spectre.Console;
+using System.Text.Json.Serialization;
 
 namespace UStealth.DriveHelper
 {
@@ -67,7 +68,7 @@ namespace UStealth.DriveHelper
                             break;
                         case "listdrives":
                             // Interactive Spectre.Console table view
-                            var drives = new List<dynamic>();
+                            var drives = new List<DriveInfoDisplay>();
                             try
                             {
                                 var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
@@ -102,7 +103,7 @@ namespace UStealth.DriveHelper
                                         status = "*UNKNOWN*";
                                     else
                                         status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
-                                    drives.Add(new {
+                                    drives.Add(new DriveInfoDisplay {
                                         DeviceID = deviceId,
                                         Model = model,
                                         Interface = interfaceType,
@@ -125,18 +126,18 @@ namespace UStealth.DriveHelper
                                 table.AddColumn("Format");
                                 table.AddColumn("DriveLetter");
                                 table.AddColumn("Status");
-                                foreach (dynamic d in drives)
+                                foreach (var d in drives)
                                 {
                                     table.AddRow(
-                                        (string)(d.DeviceID ?? ""),
-                                        (string)(d.Model ?? ""),
-                                        (string)(d.Interface ?? ""),
-                                        (string)(d.MediaType ?? ""),
-                                        FormatSize((string)d.Size),
-                                        (string)(d.VolumeLabel ?? ""),
-                                        (string)(d.Format ?? ""),
-                                        (string)(d.DriveLetter ?? ""),
-                                        (string)(d.Status ?? "")
+                                        d.DeviceID ?? "",
+                                        d.Model ?? "",
+                                        d.Interface ?? "",
+                                        d.MediaType ?? "",
+                                        FormatSize(d.Size),
+                                        d.VolumeLabel ?? "",
+                                        d.Format ?? "",
+                                        d.DriveLetter ?? "",
+                                        d.Status ?? ""
                                     );
                                 }
                                 AnsiConsole.Write(table);
@@ -281,7 +282,7 @@ namespace UStealth.DriveHelper
 
         static int ListDrives()
         {
-            var drives = new List<object>();
+            var drives = new List<DriveInfoDisplay>();
             try
             {
                 var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
@@ -321,7 +322,7 @@ namespace UStealth.DriveHelper
                     else
                         status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
 
-                    drives.Add(new {
+                    drives.Add(new DriveInfoDisplay {
                         DeviceID = deviceId,
                         Model = model,
                         Interface = interfaceType,
@@ -333,7 +334,7 @@ namespace UStealth.DriveHelper
                         Status = status
                     });
                 }
-                Console.WriteLine(JsonSerializer.Serialize(drives));
+                Console.WriteLine(JsonSerializer.Serialize(drives, DriveInfoDisplayJsonContext.Default.ListDriveInfoDisplay));
                 return 0;
             }
             catch (Exception ex)
@@ -446,5 +447,23 @@ namespace UStealth.DriveHelper
             if (lastIndex >= 0 && bufVerify[lastIndex] == bufToWrite[lastIndex]) return 99;
             return 3;
         }
+
+        // Replace the use of 'dynamic' with a strongly-typed class for drive info
+        // Make DriveInfoDisplay public so it can be used by the source generator
+        public class DriveInfoDisplay
+        {
+            public string DeviceID { get; set; }
+            public string Model { get; set; }
+            public string Interface { get; set; }
+            public string MediaType { get; set; }
+            public string Size { get; set; }
+            public string VolumeLabel { get; set; }
+            public string Format { get; set; }
+            public string DriveLetter { get; set; }
+            public string Status { get; set; }
+        }
     }
+
+    [JsonSerializable(typeof(List<Program.DriveInfoDisplay>))]
+    internal partial class DriveInfoDisplayJsonContext : JsonSerializerContext { }
 }
