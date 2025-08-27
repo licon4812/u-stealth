@@ -8,7 +8,7 @@ namespace UStealth.WinUI.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return (value as string) == "HIDDEN";
+            return string.Equals(value as string, "HIDDEN", StringComparison.Ordinal);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

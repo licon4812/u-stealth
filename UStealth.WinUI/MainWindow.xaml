@@ -87,27 +87,22 @@
                         Binding="{Binding Size}"
                         Header="Size"
                         IsReadOnly="True" />
-                    <tableView:TableViewTemplateColumn
-                        x:Name="StatusTemplate"
-                        Header="Status"
-                        Visibility="{Binding Status, Converter={StaticResource StatusToTemplateColumnVisibilityConverter}}">
+                    <tableView:TableViewTemplateColumn x:Name="StatusTemplate" Header="Status">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <ToggleSwitch
-                                    x:Name="StatusToggle"
-                                    IsEnabledChanged="Control_OnIsEnabledChanged"
-                                    IsOn="{Binding Status, Mode=TwoWay, Converter={StaticResource StatusToIsOnConverter}}"
-                                    OffContent="NORMAL"
-                                    OnContent="HIDDEN" />
+                                <StackPanel>
+                                    <ToggleSwitch
+                                        x:Name="StatusToggle"
+                                        IsEnabledChanged="Control_OnIsEnabledChanged"
+                                        IsOn="{Binding Status, Mode=TwoWay, Converter={StaticResource StatusToIsOnConverter}}"
+                                        OffContent="NORMAL"
+                                        OnContent="HIDDEN"
+                                        Visibility="{Binding Status, Converter={StaticResource StatusToTemplateColumnVisibilityConverter}}" />
+                                    <TextBlock Text="{Binding Status}" Visibility="{Binding Status, Converter={StaticResource UnknownStatusVisibilityConverter}}" />
+                                </StackPanel>
                             </DataTemplate>
                         </tableView:TableViewTemplateColumn.CellTemplate>
                     </tableView:TableViewTemplateColumn>
-                    <tableView:TableViewTextColumn
-                        x:Name="StatusText"
-                        Binding="{Binding Status}"
-                        Header="Status"
-                        IsReadOnly="True"
-                        Visibility="{Binding Status, Converter={StaticResource UnknownStatusVisibilityConverter}}" />
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>
