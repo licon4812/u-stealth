@@ -7,35 +7,44 @@ using Windows.Foundation;
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Linq;
+using System.Collections.ObjectModel;
 
 namespace UStealth.WinUI
 {
     public sealed partial class MainWindow : Window
     {
-        public MainViewModel ViewModel { get; } = new();
+        public ObservableCollection<DriveInfoModel> Drives { get; } = new();
+        public DriveInfoModel SelectedDrive { get; set; }
+        private readonly DriveManager _driveManager = new();
+
+        public string AppName => "U-Stealth";
+        public string AppVersion => $"v{GetAppVersion()}";
+        public Microsoft.UI.Xaml.Media.Imaging.BitmapImage AppIconUri => new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri("ms-appx:///Assets/StoreLogo.png"));
 
         public MainWindow()
         {
             InitializeComponent();
             ExtendsContentIntoTitleBar = true;
-            AppIcon.ImageSource = ViewModel.AppIconUri;
-            TitleBar.Title = $"{ViewModel.AppName} - {ViewModel.AppVersion}";
+            AppIcon.ImageSource = AppIconUri;
+            TitleBar.Title = $"{AppName} - {AppVersion}";
             SetTitleBar(TitleBar);
+            // DataContext is not needed for x:Bind in WinUI 3
             if (Content is FrameworkElement fe)
             {
                 fe.Loaded += MainWindow_Loaded;
             }
-            ViewModel.LoadDrivesFailed += ViewModel_LoadDrivesFailed;
         }
 
-        private async void ViewModel_LoadDrivesFailed(object sender, string error)
+        private static string GetAppVersion()
         {
-            await ShowDialog(error, "Error");
+            var version = Windows.ApplicationModel.Package.Current.Id.Version;
+            return $"{version.Major}.{version.Minor}.{version.Build}";
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             CheckAndPromptForElevation();
+            await LoadDrivesAsync();
         }
 
         private void CheckAndPromptForElevation()
@@ -55,7 +64,7 @@ namespace UStealth.WinUI
                     XamlRoot = Content.XamlRoot
                 };
 
-                _= dialog.ShowAsync().AsTask().ContinueWith(async t =>
+                _ = dialog.ShowAsync().AsTask().ContinueWith(async t =>
                 {
                     var result = await t;
                     if (result == ContentDialogResult.Primary)
@@ -73,8 +82,8 @@ namespace UStealth.WinUI
                         }
                         catch { /* User cancelled UAC or error */ }
                         DispatcherQueue.TryEnqueue(Close);
-                    } 
-                    else if(result == ContentDialogResult.Secondary)
+                    }
+                    else if (result == ContentDialogResult.Secondary)
                     {
                         DispatcherQueue.TryEnqueue(Close);
                     }
@@ -82,11 +91,34 @@ namespace UStealth.WinUI
             }
         }
 
+        private async Task LoadDrivesAsync()
+        {
+            try
+            {
+                IsLoading(true);
+                Drives.Clear();
+                var drives = await Task.Run(() => _driveManager.GetDriveList());
+                if (drives != null)
+                {
+                    foreach (var d in drives.OrderBy(x => x.DriveLetter))
+                    {
+                        Drives.Add(d);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await ShowDialog($"Failed to load drives: {ex.Message}", "Error");
+            }
+            finally
+            {
+                IsLoading(false);
+            }
+        }
+
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            IsLoading(true);
-            ViewModel.LoadDrives(); // Call directly on UI thread
-            IsLoading(false);
+            _ = LoadDrivesAsync();
         }
 
         private async Task ShowDialog(string content, string title)
@@ -115,8 +147,7 @@ namespace UStealth.WinUI
                     return;
 
                 // Get the latest status for this drive
-                var driveManager = new DriveManager();
-                string? latestStatus = driveManager.GetDriveList()
+                string? latestStatus = _driveManager.GetDriveList()
                     .FirstOrDefault(d => d.DeviceID == drive.DeviceID)?.Status;
 
                 // Determine what the toggle is switching to
@@ -131,8 +162,8 @@ namespace UStealth.WinUI
                     IsLoading(false);
                     return;
                 }
-                ViewModel.SelectedDrive = drive;
-                var result = await ViewModel.ToggleSelectedDriveAsync();
+                SelectedDrive = drive;
+                var result = await ToggleSelectedDriveAsync();
                 if (!string.IsNullOrEmpty(result))
                 {
                     var parts = result.Split('|');
@@ -141,9 +172,76 @@ namespace UStealth.WinUI
                 IsLoading(false);
             }
             catch (Exception ex)
-            { 
-                 await ShowDialog(ex.Message, "Error");
+            {
+                await ShowDialog(ex.Message, "Error");
                 IsLoading(false);
+            }
+        }
+
+        private async Task<string> ToggleSelectedDriveAsync()
+        {
+            if (SelectedDrive == null)
+                return null;
+            if (SelectedDrive.IsSystemDrive)
+                return "You cannot make changes to the System drive!|Impossible!";
+            if (SelectedDrive.Status == "*UNKNOWN*")
+                return "You cannot make changes to an unknown boot sector type!|Impossible!";
+
+            string helperExe = "UStealth.DriveHelper.exe";
+            string args = $"toggleboot \"{SelectedDrive.DeviceID}\"";
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = helperExe,
+                    Arguments = args,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using var process = Process.Start(psi);
+                string output = await process.StandardOutput.ReadToEndAsync();
+                string error = await process.StandardError.ReadToEndAsync();
+                await process.WaitForExitAsync();
+                int exitCode = process.ExitCode;
+                output = output?.Trim();
+                error = error?.Trim();
+
+                if (exitCode == 99 && output == "HIDDEN")
+                {
+                    await LoadDrivesAsync();
+                    return "Partition was hidden. You will only be able to access this partition with Wii USB loaders that support it. Be warned that Windows may ask if you want to format the drive when you insert it next time since it is hidden. The obvious answer to that is NO unless you want to lose the data on it.|Done";
+                }
+                else if (exitCode == 99 && output == "UNHIDDEN")
+                {
+                    await LoadDrivesAsync();
+                    return "Partition was unhidden successfully. You can now access this partition from anywhere.|Done";
+                }
+                else if (exitCode == 1)
+                {
+                    return $"Unable to get handle on or read the drive. {error}|Error";
+                }
+                else if (exitCode == 2)
+                {
+                    return $"Unable to lock the device. Check that it is not in use and try again. {error}|Device locked";
+                }
+                else if (exitCode == 3)
+                {
+                    return $"On verify, it appears that nothing has changed. Somehow I was unable to toggle the boot sector. {error}|Verify";
+                }
+                else if (!string.IsNullOrWhiteSpace(error))
+                {
+                    return $"{error}|Hmmm...";
+                }
+                else
+                {
+                    return "Unknown boot signature found on the drive, for safety's sake, nothing was done.|Hmmm...";
+                }
+            }
+            catch (System.Exception ex)
+            {
+                return $"Failed to launch helper: {ex.Message}|Error";
             }
         }
     }

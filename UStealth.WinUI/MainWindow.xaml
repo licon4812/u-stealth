@@ -49,7 +49,7 @@
                 Margin="0,16,0,0"
                 x:DataType="local:DriveInfoModel"
                 AutoGenerateColumns="False"
-                ItemsSource="{x:Bind ViewModel.Drives}"
+                ItemsSource="{x:Bind Drives}"
                 SelectionMode="Single">
                 <tableView:TableView.Columns>
                     <tableView:TableViewCheckBoxColumn
