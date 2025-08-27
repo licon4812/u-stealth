@@ -327,7 +327,7 @@ namespace UStealth.DriveHelper
                         Model = model,
                         Interface = interfaceType,
                         MediaType = mediaType,
-                        Size = size,
+                        Size = FormatSize(size),
                         VolumeLabel = volLabel,
                         Format = format,
                         DriveLetter = driveLetters,
