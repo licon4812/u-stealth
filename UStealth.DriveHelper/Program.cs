@@ -49,7 +49,7 @@ namespace UStealth.DriveHelper
                     var command = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                             .Title("[green]Select a command[/]")
-                            .AddChoices(new[] { "toggleboot", "readboot", "listdrives", "exit" })
+                            .AddChoices("list drives","hide / unhide","read boot", "exit")
                     );
 
                     if (command == "exit")
@@ -58,7 +58,7 @@ namespace UStealth.DriveHelper
                     string device = null;
                     string hexData = null;
 
-                    if (command is "toggleboot" or "readboot")
+                    if (command is "hide / unhide" or "read boot")
                     {
                         // List drives and let user select
                         var drives = GetDrivesForPrompt();
@@ -75,22 +75,18 @@ namespace UStealth.DriveHelper
                         // Extract deviceId from label
                         device = device.Split(' ')[0];
                     }
-                    if (command == "writeboot")
-                    {
-                        hexData = AnsiConsole.Ask<string>("[green]Enter hex data to write to boot sector[/]");
-                    }
 
                     // Call the appropriate method
                     int result = 0;
                     switch (command)
                     {
-                        case "toggleboot":
+                        case "hide / unhide":
                             result = ToggleBoot(device);
                             break;
-                        case "readboot":
+                        case "read boot":
                             result = ReadBoot(device);
                             break;
-                        case "listdrives":
+                        case "list drives":
                             // Interactive Spectre.Console table view
                             var drives = new List<DriveInfoDisplay>();
                             try
