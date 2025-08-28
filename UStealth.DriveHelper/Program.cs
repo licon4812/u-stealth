@@ -49,7 +49,7 @@ namespace UStealth.DriveHelper
                     var command = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                             .Title("[green]Select a command[/]")
-                            .AddChoices("list drives","hide / unhide","read boot", "exit")
+                            .AddChoices("list drives","hide / unhide","read boot", "help", "exit")
                     );
 
                     if (command == "exit")
@@ -86,6 +86,9 @@ namespace UStealth.DriveHelper
                         case "read boot":
                             result = ReadBoot(device);
                             break;
+                        case "help":
+                            Help();
+                            continue; // Skip the "Command finished" message
                         case "list drives":
                             // Interactive Spectre.Console table view
                             var drives = new List<DriveInfoDisplay>();
@@ -213,6 +216,9 @@ namespace UStealth.DriveHelper
                         return ReadBoot(deviceArg);
                     case "listdrives":
                         return ListDrives();
+                    case "help":
+                        Help();
+                        return 0;
                     default:
                         Console.Error.WriteLine($"Unknown command: {commandArg}");
                         return 102;
@@ -231,6 +237,18 @@ namespace UStealth.DriveHelper
             using var identity = WindowsIdentity.GetCurrent();
             var principal = new WindowsPrincipal(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
+        private static void Help()
+        {
+            AnsiConsole.MarkupLine("[blue]UStealth Drive Helper[/]");
+            AnsiConsole.MarkupLine("A command-line tool to manage drive boot sectors.");
+            AnsiConsole.MarkupLine("Commands:");
+            AnsiConsole.MarkupLine(" - [green]list drives[/]: List all connected drives with details.");
+            AnsiConsole.MarkupLine(" - [green]hide / unhide[/]: Toggle the boot sector signature of a selected drive.");
+            AnsiConsole.MarkupLine(" - [green]read boot[/]: Read and display the boot sector of a selected drive in hex format.");
+            AnsiConsole.MarkupLine(" - [green]help[/]: Show this help information.");
+            AnsiConsole.MarkupLine(" - [green]exit[/]: Exit the application.");
         }
 
         private static List<string> GetDrivesForPrompt()
@@ -320,10 +338,6 @@ namespace UStealth.DriveHelper
             return null;
         }
 
-        private static string EscapeWmiString(string input)
-        {
-            return input?.Replace("\\", "\\\\") ?? string.Empty;
-        }
 
         private static string FormatSize(string sizeStr)
         {
