@@ -50,3 +50,15 @@ The legacy version of U-Stealth is still available for download. It has been upd
 | Release Name         | Version | Download Link                                                           |
 |----------------------|---------|-------------------------------------------------------------------------|
 | Upgraded to .NET 9.0 | 1.0.0.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/1.0.0.0) |
+
+
+## WinUI.Table View
+
+A modern table view control for WinUI applications. I have cloned this repo and added it as a project reference for UStealth.WinUI/
+This was due to the table not supporting WinRT interop bindings. I have made a PR to the original repo to add this functionality.
+
+- [GitHub Repository](https://github.com/w-ahmad/WinUI.TableView)
+- [GitHub Issue](https://github.com/w-ahmad/WinUI.TableView/issues/207)
+- [Pull Request](https://github.com/w-ahmad/WinUI.TableView/pull/209)
+
+One the PR is merged I will remove the project reference and add it as a nuget package.
