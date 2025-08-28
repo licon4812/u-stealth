@@ -28,6 +28,10 @@ The U-Stealth CLI is a command-line interface for managing U-Stealth settings an
 
 Coming soon
 
+### Microsoft Store
+
+Coming soon
+
 ### GitHub Releases
 
 | Release Name                                             | Version | Download Link                                                              |
