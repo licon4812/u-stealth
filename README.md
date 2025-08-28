@@ -30,7 +30,9 @@ Coming soon
 
 ### Microsoft Store
 
-Coming soon
+<a href="https://apps.microsoft.com/detail/9P1TXW2R0R4T?mode=direct">
+ <img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
+</a>
 
 ### GitHub Releases
 
