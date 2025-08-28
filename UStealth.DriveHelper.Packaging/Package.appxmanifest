@@ -8,13 +8,13 @@
   IgnorableNamespaces="uap uap5 rescap">
 
 	<Identity
-	  Name="f3b2221b-e51f-44c1-8323-898475f1af09"
-	  Publisher="CN=jalic"
+	  Name="23610AlickolliSoftware.U-StealthCLI"
+	  Publisher="CN=5CECD841-CF4E-45AF-B443-573F4A3614A0"
 	  Version="1.0.2.0" />
 
 	<Properties>
-		<DisplayName>UStealth.DriveHelper.Packaging</DisplayName>
-		<PublisherDisplayName>jalic</PublisherDisplayName>
+		<DisplayName>U-Stealth CLI</DisplayName>
+		<PublisherDisplayName>Alickolli Software</PublisherDisplayName>
 		<Logo>Images\StoreLogo.png</Logo>
 	</Properties>
 
@@ -32,7 +32,7 @@
 		  Executable="$targetnametoken$.exe"
 		  EntryPoint="$targetentrypoint$">
 			<uap:VisualElements
-			  DisplayName="UStealth.DriveHelper.Packaging"
+			  DisplayName="U-Stealth CLI"
 			  Description="UStealth.DriveHelper.Packaging"
 			  BackgroundColor="transparent"
 			  Square150x150Logo="Images\Square150x150Logo.png"
