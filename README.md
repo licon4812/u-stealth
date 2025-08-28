@@ -26,7 +26,7 @@ The U-Stealth CLI is a command-line interface for managing U-Stealth settings an
 
 ### WinGet
 
-Coming soon
+`winget install 9P1TXW2R0R4T`
 
 ### Microsoft Store
 
