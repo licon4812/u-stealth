@@ -149,15 +149,32 @@ namespace UStealth.DriveHelper
                 {
                     foreach (var device in blockDevices.EnumerateArray().Where(device => device.GetProperty("type").GetString() == "disk"))
                     {
+                        // Fallbacks from children (partitions)
+                        string? fallbackLabel = null, fallbackFormat = null, fallbackMount = null;
+                        if (device.TryGetProperty("children", out var children))
+                        {
+                            foreach (var child in children.EnumerateArray())
+                            {
+                                if (string.IsNullOrEmpty(fallbackLabel) && child.TryGetProperty("label", out var childLbl) && !string.IsNullOrEmpty(childLbl.GetString()))
+                                    fallbackLabel = childLbl.GetString();
+                                if (string.IsNullOrEmpty(fallbackFormat) && child.TryGetProperty("fstype", out var childFs) && !string.IsNullOrEmpty(childFs.GetString()))
+                                    fallbackFormat = childFs.GetString();
+                                if (string.IsNullOrEmpty(fallbackMount) && child.TryGetProperty("mountpoint", out var childMp) && !string.IsNullOrEmpty(childMp.GetString()))
+                                    fallbackMount = childMp.GetString();
+                                // If all found, break
+                                if (fallbackLabel != null && fallbackFormat != null && fallbackMount != null)
+                                    break;
+                            }
+                        }
                         var drive = new DriveInfoDisplay
                         {
                             DeviceID = device.GetProperty("name").GetString() ?? "Unknown",
                             Size = device.GetProperty("size").GetString() ?? "Unknown",
                             MediaType = device.GetProperty("type").GetString() ?? "Unknown",
-                            DriveLetter = device.TryGetProperty("mountpoint", out var mp) ? $@"{mp.GetString()}" ?? "" : "",
-                            Format = device.TryGetProperty("fstype", out var fs) ? fs.GetString() ?? "" : "",
-                            VolumeLabel = device.TryGetProperty("label", out var lbl) ? lbl.GetString() ?? "" : "",
-                            Model = device.TryGetProperty("model", out var mdl) ? $"{mdl.GetString()}" ?? "" : "",
+                            DriveLetter = device.TryGetProperty("mountpoint", out var mp) && !string.IsNullOrEmpty(mp.GetString()) ? mp.GetString()! : fallbackMount ?? "",
+                            Format = device.TryGetProperty("fstype", out var fs) && !string.IsNullOrEmpty(fs.GetString()) ? fs.GetString()! : fallbackFormat ?? "",
+                            VolumeLabel = device.TryGetProperty("label", out var lbl) && !string.IsNullOrEmpty(lbl.GetString()) ? lbl.GetString()! : fallbackLabel ?? "",
+                            Model = device.TryGetProperty("model", out var mdl) ? mdl.GetString() ?? "" : "",
                             Status = "*UNKNOWN*",
                             Interface = device.TryGetProperty("tran", out var trn) ? trn.GetString() ?? "" : ""
                         };
@@ -291,7 +308,7 @@ namespace UStealth.DriveHelper
             var path = device.StartsWith("/dev/") ? device : $"/dev/{device}";
             try
             {
-                using var fs = new System.IO.FileStream(path, System.IO.FileMode.Open, System.IO.FileAccess.Write, System.IO.FileShare.ReadWrite);
+                using var fs = new System.IO.FileStream(path, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite, System.IO.FileShare.ReadWrite);
                 fs.Seek(0, System.IO.SeekOrigin.Begin);
                 fs.Write(buf, 0, buf.Length);
                 fs.Flush();
@@ -303,9 +320,10 @@ namespace UStealth.DriveHelper
                     return 99; // success
                 return 3; // nothing appears to have happened
             }
-            catch (Exception)
+            catch (Exception exception)
             {
                 // Could not open/write device (likely not root or device busy)
+                AnsiConsole.MarkupLine($"[red]{Markup.Escape(exception.Message)}[/]");
                 return 1;
             }
         }
