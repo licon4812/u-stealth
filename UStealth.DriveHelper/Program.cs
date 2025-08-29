@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Mime;
 using Spectre.Console;
 using System.Text.Json.Serialization;
 
@@ -37,13 +38,15 @@ namespace UStealth.DriveHelper
                 }
 #endif
 
-                    while (true)
+                while (true)
                 {
+
                     // Interactive Spectre.Console menu
+                    AnsiConsole.MarkupLine($"[blue]Welcome to U-Stealth CLI v{GetApplicationVersion()}[/]");
                     var command = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                             .Title("[green]Select a command[/]")
-                            .AddChoices("list drives","hide / unhide","read boot", "help", "exit")
+                            .AddChoices("list drives", "hide / unhide", "read boot", "version" , "help", "exit")
                     );
 
                     if (command == "exit")
@@ -79,6 +82,10 @@ namespace UStealth.DriveHelper
                             break;
                         case "read boot":
                             result = ReadBoot(device);
+                            break;
+                        case "version":
+                            AnsiConsole.MarkupLine($"[green] U-Stealth CLI v{GetApplicationVersion()}[/]");
+                            result = 0;
                             break;
                         case "help":
                             Help();
@@ -153,6 +160,9 @@ namespace UStealth.DriveHelper
                         return ReadBoot(deviceArg);
                     case "listdrives":
                         return ListDrives();
+                    case "version":
+                        AnsiConsole.MarkupLine($"[green] U-Stealth CLI v{GetApplicationVersion()}[/]");
+                        return 0;
                     case "help":
                         Help();
                         return 0;
@@ -243,6 +253,7 @@ namespace UStealth.DriveHelper
             AnsiConsole.MarkupLine(" - [green]list drives[/]: List all connected drives with details.");
             AnsiConsole.MarkupLine(" - [green]hide / unhide[/]: Toggle the boot sector signature of a selected drive.");
             AnsiConsole.MarkupLine(" - [green]read boot[/]: Read and display the boot sector of a selected drive in hex format.");
+            AnsiConsole.MarkupLine(" - [green]version[/]: Display the application version.");
             AnsiConsole.MarkupLine(" - [green]help[/]: Show this help information.");
             AnsiConsole.MarkupLine(" - [green]exit[/]: Exit the application.");
         }
@@ -261,6 +272,11 @@ namespace UStealth.DriveHelper
             };
         }
 
+        public static string GetApplicationVersion()
+        {
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            return version != null ? version.ToString() : "unknown";
+        }
 
         // Replace the use of 'dynamic' with a strongly-typed class for drive info
         // Make DriveInfoDisplay public so it can be used by the source generator
