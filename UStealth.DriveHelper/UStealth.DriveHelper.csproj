@@ -7,7 +7,6 @@
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
     <Version>1.0.3.0</Version>
     <Nullable>enable</Nullable>
-    <SelfContained>true</SelfContained>
     <IsAotCompatible>true</IsAotCompatible>
     <PublishAot>True</PublishAot>
     <PublishWmiLightStaticallyLinked>true</PublishWmiLightStaticallyLinked>
@@ -21,11 +20,13 @@
   <ItemGroup Condition="'$(TargetFramework)' != 'net9.0-windows'">
     <Compile Remove="Windows.cs" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows'">
+    <PackageReference Include="WmiLight" Version="6.14.0" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(RuntimeIdentifiers)' != '' And $(RuntimeIdentifiers.Contains('linux')) ">
     <!-- Linux-specific properties here -->
   </PropertyGroup>	
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.50.0" />
-    <PackageReference Include="WmiLight" Version="6.14.0" />
   </ItemGroup>
 </Project>
