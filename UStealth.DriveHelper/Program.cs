@@ -167,7 +167,7 @@ namespace UStealth.DriveHelper
                         Help();
                         return 0;
                     default:
-                        Console.Error.WriteLine($"Unknown command: {commandArg}");
+                        AnsiConsole.MarkupLine(($"Unknown command: {commandArg}, try running [green]help[/] to see a list of commands"));
                         return 102;
                 }
             }
