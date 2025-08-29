@@ -18,7 +18,7 @@ namespace UStealth.Tests
         [MethodDataSource(nameof(FormatSizesData))]
         public async Task FormatSize_ReturnsCorrectlyFormattedString(string actual, string expected)
         {
-            await Assert.That(actual).IsEqualTo(InvokeFormatSize(expected));
+            await Assert.That(actual).IsEqualTo(Program.FormatSize(expected));
         }
 
         [Test]
@@ -72,12 +72,6 @@ namespace UStealth.Tests
             {
                 Console.SetOut(originalOut);
             }
-        }
-
-        private string InvokeFormatSize(string sizeStr)
-        {
-            var method = typeof(Program).GetMethod("FormatSize", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            return (string)method.Invoke(null, [sizeStr]);
         }
 
         private int InvokeToggle(string device)

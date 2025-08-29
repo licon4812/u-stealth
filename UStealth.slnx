@@ -1,0 +1,38 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="UStealth.DriveHelper.Packaging/UStealth.DriveHelper.Packaging.wapproj" Type="c7167f0d-bc9f-4e6e-afe1-012c56b48db5">
+    <Deploy />
+  </Project>
+  <Project Path="UStealth.DriveHelper/UStealth.DriveHelper.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+  </Project>
+  <Project Path="UStealth.ModularPipelines/UStealth.ModularPipelines.csproj" />
+  <Project Path="UStealth.Tests/UStealth.Tests.csproj">
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+  </Project>
+  <Project Path="UStealth.WinForms/UStealth.WinForms.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+    <Build Solution="*|ARM64" Project="false" />
+    <Build Solution="*|x86" Project="false" />
+  </Project>
+  <Project Path="UStealth.WinUI/UStealth.WinUI.csproj">
+    <BuildDependency Project="UStealth.DriveHelper/UStealth.DriveHelper.csproj" />
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+    <Deploy />
+  </Project>
+  <Project Path="WinUI.TableView/WinUI.TableView.csproj" />
+</Solution>

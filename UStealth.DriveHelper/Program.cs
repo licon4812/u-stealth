@@ -1,21 +1,16 @@
 using System;
-using System.IO;
-using System.Runtime.InteropServices;
-using Microsoft.Win32.SafeHandles;
-using System.Text.Json;
-using WmiLight;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net.Mime;
 using Spectre.Console;
 using System.Text.Json.Serialization;
-using System.Diagnostics;
-using System.Security.Principal;
+
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("UStealth.Tests")]
 namespace UStealth.DriveHelper
 {
     internal class Program
     {
-        private static DriveInfoDisplay? SystemDrive { get; set; } = FindSystemDrive();
         static int Main(string[] args)
         {
             // Elevation check at the very beginning of interactive mode
@@ -24,32 +19,34 @@ namespace UStealth.DriveHelper
 #if !DEBUG
                 if (!IsRunningAsAdministrator())
                 {
+#if WINDOWS
                     AnsiConsole.MarkupLine("[yellow]This tool requires administrator privileges. Relaunching with elevation...[/]");
-                    try
+                    Windows.ElevateToAdministrator();
+#else
+                    if (Linux.IsCliMode())
                     {
-                        var psi = new ProcessStartInfo
-                        {
-                            FileName = Environment.ProcessPath ?? Environment.ProcessPath,
-                            UseShellExecute = true,
-                            Verb = "runas"
-                        };
-                        Process.Start(psi);
+                        AnsiConsole.MarkupLine("[yellow]This tool requires administrator privileges[/]");
+                        AnsiConsole.MarkupLine("[red]please rerun this process as an administrator or root[/]");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        AnsiConsole.MarkupLine($"[red]Failed to elevate: {ex.Message}[/]");
+                        AnsiConsole.MarkupLine("[yellow]This tool requires administrator privileges. Relaunching with elevation...[/]");
+                        Linux.ElevateToAdministrator();
                     }
+#endif
                     return 123; // Exit current process
                 }
 #endif
 
                 while (true)
                 {
+
                     // Interactive Spectre.Console menu
+                    AnsiConsole.MarkupLine($"[blue]Welcome to U-Stealth CLI v{GetApplicationVersion()}[/]");
                     var command = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                             .Title("[green]Select a command[/]")
-                            .AddChoices("list drives","hide / unhide","read boot", "help", "exit")
+                            .AddChoices("list drives", "hide / unhide", "read boot", "version" , "help", "exit")
                     );
 
                     if (command == "exit")
@@ -86,76 +83,23 @@ namespace UStealth.DriveHelper
                         case "read boot":
                             result = ReadBoot(device);
                             break;
+                        case "version":
+                            AnsiConsole.MarkupLine($"[green] U-Stealth CLI v{GetApplicationVersion()}[/]");
+                            result = 0;
+                            break;
                         case "help":
                             Help();
                             continue; // Skip the "Command finished" message
                         case "list drives":
                             // Interactive Spectre.Console table view
                             var drives = new List<DriveInfoDisplay>();
+#if WINDOWS
+                            drives = Windows.GetDrives();
+#else
+                            drives = Linux.GetDrives();
+#endif
                             try
                             {
-                                string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
-                                using var connection = new WmiConnection();
-                                var diskDrives = connection.CreateQuery("SELECT * FROM Win32_DiskDrive");
-                                foreach (var drive in diskDrives)
-                                {
-                                    string deviceId = drive["DeviceID"]?.ToString();
-                                    string model = drive["Model"]?.ToString();
-                                    string interfaceType = drive["InterfaceType"]?.ToString();
-                                    string mediaType = drive["MediaType"]?.ToString();
-                                    string size = drive["Size"]?.ToString();
-                                    string status = "*UNKNOWN*";
-                                    string driveLetters = "";
-                                    string volLabel = null;
-                                    string format = null;
-                                    bool systemDrive = false;
-
-                                    try
-                                    {
-                                        var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
-                                        foreach (var partition in partitionQuery)
-                                        {
-                                            var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
-                                            foreach (var logicalDisk in logicalQuery)
-                                            {
-                                                if (!string.IsNullOrEmpty(driveLetters))
-                                                    driveLetters += ", ";
-                                                driveLetters += logicalDisk["DeviceID"]?.ToString();
-                                                if (driveLetters == sysDrive)
-                                                {
-                                                    systemDrive = true;
-                                                }
-                                                volLabel = logicalDisk["VolumeName"]?.ToString();
-                                                format = logicalDisk["FileSystem"]?.ToString();
-                                            }
-                                        }
-                                    }
-                                    catch { }
-                                    var bufR = ReadBootSector(deviceId);
-                                    if (bufR == null)
-                                        status = "*UNKNOWN*";
-                                    else
-                                        status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
-
-                                    var driveInfo = new DriveInfoDisplay
-                                    {
-                                        IsSystemDrive = systemDrive,
-                                        DeviceID = deviceId,
-                                        Model = model,
-                                        Interface = interfaceType,
-                                        MediaType = mediaType,
-                                        Size = size,
-                                        VolumeLabel = volLabel,
-                                        Format = format,
-                                        DriveLetter = driveLetters,
-                                        Status = status
-                                    };
-                                    if (systemDrive)
-                                    {
-                                        SystemDrive = driveInfo;
-                                    }
-                                    drives.Add(driveInfo);
-                                }
                                 // Print as Spectre.Console table
                                 var table = new Table();
                                 table.AddColumn("SystemDrive");
@@ -171,16 +115,16 @@ namespace UStealth.DriveHelper
                                 foreach (var d in drives)
                                 {
                                     table.AddRow(
-                                        d.IsSystemDrive.ToString() ?? "",
-                                        d.DeviceID ?? "",
-                                        d.Model ?? "",
-                                        d.Interface ?? "",
-                                        d.MediaType ?? "",
-                                        FormatSize(d.Size),
-                                        d.VolumeLabel ?? "",
-                                        d.Format ?? "",
-                                        d.DriveLetter ?? "",
-                                        d.Status ?? ""
+                                        Markup.Escape(d.IsSystemDrive.ToString() ?? ""),
+                                        Markup.Escape(d.DeviceID ?? ""),
+                                        Markup.Escape(d.Model ?? ""),
+                                        Markup.Escape(d.Interface ?? ""),
+                                        Markup.Escape(d.MediaType ?? ""),
+                                        Markup.Escape(FormatSize(d.Size)),
+                                        Markup.Escape(d.VolumeLabel ?? ""),
+                                        Markup.Escape(d.Format ?? ""),
+                                        Markup.Escape(d.DriveLetter ?? ""),
+                                        Markup.Escape(d.Status ?? "")
                                     );
                                 }
                                 AnsiConsole.Write(table);
@@ -216,11 +160,14 @@ namespace UStealth.DriveHelper
                         return ReadBoot(deviceArg);
                     case "listdrives":
                         return ListDrives();
+                    case "version":
+                        AnsiConsole.MarkupLine($"[green] U-Stealth CLI v{GetApplicationVersion()}[/]");
+                        return 0;
                     case "help":
                         Help();
                         return 0;
                     default:
-                        Console.Error.WriteLine($"Unknown command: {commandArg}");
+                        AnsiConsole.MarkupLine(($"Unknown command: {commandArg}, try running [green]help[/] to see a list of commands"));
                         return 102;
                 }
             }
@@ -231,12 +178,71 @@ namespace UStealth.DriveHelper
             }
         }
 
-        // Helper to check for admin rights
+        /// <summary>
+        /// Command to list drives in JSON format
+        /// </summary>
+        /// <returns></returns>
+        private static int ListDrives()
+        {
+#if WINDOWS
+            return Windows.ListDrives();
+#else
+            return Linux.ListDrives();
+#endif
+        }
+
+        /// <summary>
+        /// Command to read and display the boot sector in hex format
+        /// </summary>
+        /// <param name="deviceArg"></param>
+        /// <returns></returns>
+        private static int ReadBoot(string? deviceArg)
+        {
+#if WINDOWS
+            return Windows.ReadBoot(deviceArg);
+#else
+            return Linux.ReadBoot(deviceArg);
+#endif
+        }
+
+        /// <summary>
+        /// Command to toggle the boot sector signature
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
+        private static int ToggleBoot(string? device)
+        {
+#if WINDOWS
+            return Windows.ToggleBoot(device);
+#else
+            return Linux.ToggleBoot(device);
+#endif
+        }
+
+        /// <summary>
+        /// Helper to get drives for Spectre.Console prompt
+        /// </summary>
+        /// <returns></returns>
+        private static List<string> GetDrivesForPrompt()
+        {
+#if WINDOWS
+            return Windows.GetDrivesForPrompt();
+#else
+            return Linux.GetDrivesForPrompt();
+#endif
+        }
+
+        /// <summary>
+        /// Helper to check if running as administrator
+        /// </summary>
+        /// <returns></returns>
         private static bool IsRunningAsAdministrator()
         {
-            using var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+#if WINDOWS
+            return Windows.IsRunningAdministrator();
+#else
+            return Linux.IsRunningAdministrator();
+#endif
         }
 
         private static void Help()
@@ -247,335 +253,29 @@ namespace UStealth.DriveHelper
             AnsiConsole.MarkupLine(" - [green]list drives[/]: List all connected drives with details.");
             AnsiConsole.MarkupLine(" - [green]hide / unhide[/]: Toggle the boot sector signature of a selected drive.");
             AnsiConsole.MarkupLine(" - [green]read boot[/]: Read and display the boot sector of a selected drive in hex format.");
+            AnsiConsole.MarkupLine(" - [green]version[/]: Display the application version.");
             AnsiConsole.MarkupLine(" - [green]help[/]: Show this help information.");
             AnsiConsole.MarkupLine(" - [green]exit[/]: Exit the application.");
         }
 
-        private static List<string> GetDrivesForPrompt()
+
+        public static string FormatSize(string sizeStr)
         {
-            var drives = new List<string>();
-            try
+            if (!long.TryParse(sizeStr, out long size)) return sizeStr;
+            return size switch
             {
-                using var connection = new WmiConnection();
-                var diskDrives = connection.CreateQuery("SELECT DeviceID, Model, Size FROM Win32_DiskDrive");
-                foreach (var drive in diskDrives)
-                {
-                    string deviceId = drive["DeviceID"]?.ToString();
-                    string model = drive["Model"]?.ToString();
-                    string size = drive["Size"]?.ToString();
-                    string label = $"{deviceId} ({model}, {FormatSize(size)})";
-                    drives.Add(label);
-                }
-            }
-            catch { }
-            return drives;
+                > 999999999999 => $"{size / 1_000_000_000_000.0:F1} TB",
+                > 999999999 => $"{size / 1_000_000_000.0:F1} GB",
+                > 999999 => $"{size / 1_000_000.0:F1} MB",
+                > 999 => $"{size / 1_000.0:F1} KB",
+                _ => size.ToString()
+            };
         }
 
-        // Finds and returns the system drive info, or null if not found
-        private static DriveInfoDisplay? FindSystemDrive()
+        public static string GetApplicationVersion()
         {
-            string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
-            using var connection = new WmiConnection();
-            var diskDrives = connection.CreateQuery("SELECT * FROM Win32_DiskDrive");
-            foreach (var drive in diskDrives)
-            {
-                string deviceId = drive["DeviceID"]?.ToString();
-                string model = drive["Model"]?.ToString();
-                string interfaceType = drive["InterfaceType"]?.ToString();
-                string mediaType = drive["MediaType"]?.ToString();
-                string size = drive["Size"]?.ToString();
-                string status = "*UNKNOWN*";
-                string driveLetters = "";
-                string volLabel = null;
-                string format = null;
-                bool systemDrive = false;
-
-                try
-                {
-                    var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
-                    foreach (var partition in partitionQuery)
-                    {
-                        var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
-                        foreach (var logicalDisk in logicalQuery)
-                        {
-                            if (!string.IsNullOrEmpty(driveLetters))
-                                driveLetters += ", ";
-                            driveLetters += logicalDisk["DeviceID"]?.ToString();
-                            if (driveLetters == sysDrive)
-                            {
-                                systemDrive = true;
-                            }
-                            volLabel = logicalDisk["VolumeName"]?.ToString();
-                            format = logicalDisk["FileSystem"]?.ToString();
-                        }
-                    }
-                }
-                catch { }
-
-                var bufR = ReadBootSector(deviceId);
-                if (bufR == null)
-                    status = "*UNKNOWN*";
-                else
-                    status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
-
-                if (systemDrive)
-                {
-                    return new DriveInfoDisplay
-                    {
-                        IsSystemDrive = true,
-                        DeviceID = deviceId,
-                        Model = model,
-                        Interface = interfaceType,
-                        MediaType = mediaType,
-                        Size = FormatSize(size),
-                        VolumeLabel = volLabel,
-                        Format = format,
-                        DriveLetter = driveLetters,
-                        Status = status
-                    };
-                }
-            }
-            return null;
-        }
-
-
-        private static string FormatSize(string sizeStr)
-        {
-            if (long.TryParse(sizeStr, out long size))
-            {
-                if (size > 999999999999) return $"{size / 1_000_000_000_000.0:F1} TB";
-                if (size > 999999999) return $"{size / 1_000_000_000.0:F1} GB";
-                if (size > 999999) return $"{size / 1_000_000.0:F1} MB";
-                if (size > 999) return $"{size / 1_000.0:F1} KB";
-                return size.ToString();
-            }
-            return sizeStr;
-        }
-
-        // Example: Toggle boot sector signature between 0xAA and 0xAB
-        static int ToggleBoot(string device)
-        {
-            if(device == SystemDrive?.DeviceID)
-            {
-                Console.Error.WriteLine("You cannot make changes to the System drive!");
-                return 4;
-            }
-            var buf = ReadBootSector(device);
-            if (buf == null)
-            {
-                Console.Error.WriteLine("Failed to read boot sector.");
-                return 1;
-            }
-            switch (buf[510])
-            {
-                case 0x55 when buf[511] == 0xAA:
-                {
-                    buf[511] = 0xAB;
-                    int res = WriteBootSector(device, buf);
-                    Console.WriteLine(res == 99 ? "HIDDEN" : "FAILED");
-                    return res;
-                }
-                case 0x55 when buf[511] == 0xAB:
-                {
-                    buf[511] = 0xAA;
-                    int res = WriteBootSector(device, buf);
-                    Console.WriteLine(res == 99 ? "UNHIDDEN" : "FAILED");
-                    return res;
-                }
-                default:
-                    Console.Error.WriteLine("Unknown boot signature.");
-                    return 3;
-            }
-        }
-
-        static int ReadBoot(string device)
-        {
-            var buf = ReadBootSector(device);
-            if (buf == null)
-            {
-                Console.Error.WriteLine("Failed to read boot sector.");
-                return 1;
-            }
-            Console.WriteLine(Convert.ToHexString(buf));
-            return 0;
-        }
-
-        static int ListDrives()
-        {
-            var drives = new List<DriveInfoDisplay>();
-            try
-            {
-                string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
-                using var connection = new WmiConnection();
-                var diskDrives = connection.CreateQuery("SELECT * FROM Win32_DiskDrive");
-                foreach (var drive in diskDrives)
-                {
-                    string deviceId = drive["DeviceID"]?.ToString();
-                    string model = drive["Model"]?.ToString();
-                    string interfaceType = drive["InterfaceType"]?.ToString();
-                    string mediaType = drive["MediaType"]?.ToString();
-                    string size = drive["Size"]?.ToString();
-                    string status = "*UNKNOWN*";
-                    string driveLetters = "";
-                    string volLabel = null;
-                    string format = null;
-                    bool systemDrive = false;
-
-                    // Find drive letters and volume info
-                    try
-                    {
-                        var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
-                        foreach (var partition in partitionQuery)
-                        {
-                            var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
-                            foreach (var logicalDisk in logicalQuery)
-                            {
-                                if (!string.IsNullOrEmpty(driveLetters))
-                                    driveLetters += ", ";
-                                driveLetters += logicalDisk["DeviceID"]?.ToString();
-                                if (driveLetters == sysDrive)
-                                {
-                                    systemDrive = true;
-                                }
-                                volLabel = logicalDisk["VolumeName"]?.ToString();
-                                format = logicalDisk["FileSystem"]?.ToString();
-                            }
-                        }
-                    }
-                    catch { }
-
-                    // Boot sector status
-                    var bufR = ReadBootSector(deviceId);
-                    if (bufR == null)
-                        status = "*UNKNOWN*";
-                    else
-                        status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
-
-                    drives.Add(new DriveInfoDisplay {
-                        IsSystemDrive = systemDrive,
-                        DeviceID = deviceId,
-                        Model = model,
-                        Interface = interfaceType,
-                        MediaType = mediaType,
-                        Size = FormatSize(size),
-                        VolumeLabel = volLabel,
-                        Format = format,
-                        DriveLetter = driveLetters,
-                        Status = status
-                    });
-                }
-                Console.WriteLine(JsonSerializer.Serialize(drives, DriveInfoDisplayJsonContext.Default.ListDriveInfoDisplay));
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
-                return 111;
-            }
-        }
-
-        // Native methods and helpers (copy from your WinForms logic)
-        [DllImport("Kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        static extern uint SetFilePointer(
-            [In] SafeFileHandle hFile,
-            [In] int lDistanceToMove,
-            [Out] out int lpDistanceToMoveHigh,
-            [In] uint dwMoveMethod);
-
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        static extern SafeFileHandle CreateFile(string lpFileName, uint dwDesiredAccess,
-          uint dwShareMode, IntPtr lpSecurityAttributes, uint dwCreationDisposition,
-          uint dwFlagsAndAttributes, IntPtr hTemplateFile);
-
-        [DllImport("kernel32", SetLastError = true)]
-        internal extern static int ReadFile(SafeFileHandle handle, byte[] bytes,
-           int numBytesToRead, out int numBytesRead, IntPtr overlapped_MustBeZero);
-
-        [DllImport("kernel32", SetLastError = true)]
-        internal extern static int WriteFile(SafeFileHandle handle, byte[] bytes, 
-            int numBytesToWrite, out int numBytesWritten, IntPtr overlapped_MustBe_ZERO);
-
-        [DllImport("kernel32", ExactSpelling = true, SetLastError = true)]
-        private static extern bool DeviceIoControl(SafeFileHandle hDevice, uint dwIoControlCode, 
-            byte[] lpInBuffer, int nInBufferSize, byte[] lpOutBuffer, int nOutBufferSize, 
-            out int lpBytesReturned, IntPtr lpOverlapped);
-
-        static byte[]? ReadBootSector(string device)
-        {
-            uint GENERIC_READ = 0x80000000;
-            uint OPEN_EXISTING = 3;
-            // Console.Error.WriteLine($"[ReadBootSector] Opening device: {device}");
-            try
-            {
-                using var handle = CreateFile(device, GENERIC_READ, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
-                // Console.Error.WriteLine($"[ReadBootSector] Handle valid: {!handle.IsInvalid}");
-                if (handle.IsInvalid)
-                {
-                    int err = Marshal.GetLastWin32Error();
-                    // Console.Error.WriteLine($"[ReadBootSector] CreateFile failed. Win32Error: {err}");
-                    return null;
-                }
-                int offset = 0;
-                byte[] buf = new byte[512];
-                int read = 0;
-                int moveToHigh;
-                SetFilePointer(handle, offset, out moveToHigh, 0);
-                ReadFile(handle, buf, 512, out read, IntPtr.Zero);
-                // Console.Error.WriteLine($"[ReadBootSector] Read {read} bytes");
-                return buf;
-            }
-            catch (Exception ex)
-            {
-                // Console.Error.WriteLine($"[ReadBootSector] Exception: {ex.Message}");
-                return null;
-            }
-        }
-
-        static int WriteBootSector(string device, byte[] bufToWrite)
-        {
-            uint GENERIC_WRITE = 0x40000000;
-            uint FSCTL_LOCK_VOLUME = 0x00090018;
-            uint FSCTL_UNLOCK_VOLUME = 0x0009001C;
-            uint OPEN_EXISTING = 3;
-            // Console.Error.WriteLine($"[WriteBootSector] Opening device: {device}");
-            int intOut;
-            // Write and unlock in using block
-            using (var handle = CreateFile(device, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero))
-            {
-                // Console.Error.WriteLine($"[WriteBootSector] Handle valid: {!handle.IsInvalid}");
-                if (handle.IsInvalid)
-                {
-                    int err = Marshal.GetLastWin32Error();
-                   // Console.Error.WriteLine($"[WriteBootSector] CreateFile failed. Win32Error: {err}");
-                    return 1;
-                }
-                bool success = DeviceIoControl(handle, FSCTL_LOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
-                // Console.Error.WriteLine($"[WriteBootSector] Lock success: {success}");
-                if (!success)
-                    return 2;
-                int offset = 0;
-                int bytesWritten = 0;
-                int moveToHigh;
-                SetFilePointer(handle, offset, out moveToHigh, 0);
-                WriteFile(handle, bufToWrite, bufToWrite.Length, out bytesWritten, IntPtr.Zero);
-                // Console.Error.WriteLine($"[WriteBootSector] Wrote {bytesWritten} bytes");
-                // Unlock the volume before closing the handle
-                DeviceIoControl(handle, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
-            }
-            // Now the handle is closed, try to re-open for reading
-            const int maxTries = 20;
-            const int delayMs = 500;
-            byte[] bufVerify = null;
-            for (int i = 0; i < maxTries; i++)
-            {
-                System.Threading.Thread.Sleep(delayMs);
-                bufVerify = ReadBootSector(device);
-                if (bufVerify != null)
-                    break;
-            }
-            int lastIndex = Math.Min(bufVerify?.Length ?? 0, bufToWrite.Length) - 1;
-            if (lastIndex >= 0 && bufVerify[lastIndex] == bufToWrite[lastIndex]) return 99;
-            return 3;
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            return version != null ? version.ToString() : "unknown";
         }
 
         // Replace the use of 'dynamic' with a strongly-typed class for drive info
