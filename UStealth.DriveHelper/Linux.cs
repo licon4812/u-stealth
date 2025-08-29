@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using static UStealth.DriveHelper.Program;
 
 namespace UStealth.DriveHelper
@@ -125,9 +126,9 @@ namespace UStealth.DriveHelper
             }
         }
 
-        public static List<Program.DriveInfoDisplay> GetDrives()
+        public static List<DriveInfoDisplay> GetDrives()
         {
-            var drives = new List<Program.DriveInfoDisplay>();
+            var drives = new List<DriveInfoDisplay>();
             try
             {
                 var psi = new System.Diagnostics.ProcessStartInfo
@@ -161,6 +162,12 @@ namespace UStealth.DriveHelper
                             Interface = device.TryGetProperty("tran", out var trn) ? trn.GetString() ?? "" : ""
                         };
                         drive.IsSystemDrive = drive.DeviceID == SystemDrive?.DeviceID;
+                        // Boot sector status
+                        var bufR = ReadBootSector(drive.DeviceID);
+                        if (bufR == null)
+                            drive.Status = "*UNKNOWN*";
+                        else
+                            drive.Status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
                         drives.Add(drive);
                     }
                 }
@@ -170,6 +177,137 @@ namespace UStealth.DriveHelper
                 AnsiConsole.MarkupLine($"[red]Error retrieving drives: {e}[/]");
             }
             return drives;
+        }
+
+        internal static List<string> GetDrivesForPrompt()
+        {
+            var drives = new List<string>();
+            try
+            {
+                var diskDrives = GetDrives();
+                foreach (var drive in diskDrives)
+                {
+                    string deviceId = drive.DeviceID;
+                    string model = drive.Model;
+                    string size = drive.Size;
+                    string label = $"{deviceId} ({model}, {FormatSize(size)})";
+                    drives.Add(label);
+                }
+            }
+            catch { }
+            return drives;
+        }
+
+        /// <summary>
+        /// Lists drives and outputs their details as JSON.
+        /// </summary>
+        /// <returns></returns>
+        internal static int ListDrives()
+        {
+
+            try
+            {
+                var drives = GetDrives();
+                Console.WriteLine(JsonSerializer.Serialize(drives, DriveInfoDisplayJsonContext.Default.ListDriveInfoDisplay));
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
+                return 111;
+            }
+        }
+
+        internal static int ReadBoot(string device)
+        {
+            var buf = ReadBootSector(device);
+            if (buf == null)
+            {
+                Console.Error.WriteLine("Failed to read boot sector.");
+                return 1;
+            }
+            Console.WriteLine(Convert.ToHexString(buf));
+            return 0;
+        }
+        private static byte[]? ReadBootSector(string deviceId)
+        {
+            // deviceId is usually like "sda", so prepend /dev/
+            var path = deviceId.StartsWith("/dev/") ? deviceId : $"/dev/{deviceId}";
+            try
+            {
+                using var fs = new System.IO.FileStream(path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
+                byte[] buffer = new byte[512];
+                int read = fs.Read(buffer, 0, buffer.Length);
+                if (read == 512)
+                    return buffer;
+                // Partial read, treat as error
+                return null;
+            }
+            catch (Exception)
+            {
+                // Could not open/read device (likely not root or device busy)
+                return null;
+            }
+        }
+
+        internal static int ToggleBoot(string? device)
+        {
+            if (device == SystemDrive?.DeviceID)
+            {
+                Console.Error.WriteLine("You cannot make changes to the System drive!");
+                return 4;
+            }
+            var buf = ReadBootSector(device);
+            if (buf == null)
+            {
+                Console.Error.WriteLine("Failed to read boot sector.");
+                return 1;
+            }
+            switch (buf[510])
+            {
+                case 0x55 when buf[511] == 0xAA:
+                {
+                    buf[511] = 0xAB;
+                    int res = WriteBootSector(device, buf);
+                    Console.WriteLine(res == 99 ? "HIDDEN" : "FAILED");
+                    return res;
+                }
+                case 0x55 when buf[511] == 0xAB:
+                {
+                    buf[511] = 0xAA;
+                    int res = WriteBootSector(device, buf);
+                    Console.WriteLine(res == 99 ? "UNHIDDEN" : "FAILED");
+                    return res;
+                }
+                default:
+                    Console.Error.WriteLine("Unknown boot signature.");
+                    return 3;
+            }
+        }
+
+        private static int WriteBootSector(string device, byte[] buf)
+        {
+            // device is usually like "sda", so prepend /dev/
+            var path = device.StartsWith("/dev/") ? device : $"/dev/{device}";
+            try
+            {
+                using var fs = new System.IO.FileStream(path, System.IO.FileMode.Open, System.IO.FileAccess.Write, System.IO.FileShare.ReadWrite);
+                fs.Seek(0, System.IO.SeekOrigin.Begin);
+                fs.Write(buf, 0, buf.Length);
+                fs.Flush();
+                // Verify what was written
+                fs.Seek(0, System.IO.SeekOrigin.Begin);
+                byte[] verify = new byte[buf.Length];
+                int read = fs.Read(verify, 0, verify.Length);
+                if (read == buf.Length && verify.SequenceEqual(buf))
+                    return 99; // success
+                return 3; // nothing appears to have happened
+            }
+            catch (Exception)
+            {
+                // Could not open/write device (likely not root or device busy)
+                return 1;
+            }
         }
     }
 }

@@ -177,7 +177,7 @@ namespace UStealth.DriveHelper
 #if WINDOWS
             return Windows.ListDrives();
 #else
-            throw new NotImplementedException();
+            return Linux.ListDrives();
 #endif
         }
 
@@ -191,7 +191,7 @@ namespace UStealth.DriveHelper
 #if WINDOWS
             return Windows.ReadBoot(deviceArg);
 #else
-            throw new NotImplementedException();
+            return Linux.ReadBoot(deviceArg);
 #endif
         }
 
@@ -205,7 +205,7 @@ namespace UStealth.DriveHelper
 #if WINDOWS
             return Windows.ToggleBoot(device);
 #else
-            throw new NotImplementedException();
+            return Linux.ToggleBoot(device);
 #endif
         }
 
@@ -218,7 +218,7 @@ namespace UStealth.DriveHelper
 #if WINDOWS
             return Windows.GetDrivesForPrompt();
 #else
-            throw new NotImplementedException();
+            return Linux.GetDrivesForPrompt();
 #endif
         }
 
