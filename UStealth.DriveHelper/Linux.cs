@@ -47,5 +47,52 @@ namespace UStealth.DriveHelper
                 AnsiConsole.MarkupLine($"[red]Error: {e}[/]");
             }
         }
+
+        public static List<Program.DriveInfoDisplay> GetDrives()
+        {
+            var drives = new List<Program.DriveInfoDisplay>();
+            try
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "lsblk",
+                    Arguments = "-o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,LABEL,MODEL,VENDOR,TRAN -J",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using var process = System.Diagnostics.Process.Start(psi);
+                if (process == null)
+                    throw new InvalidOperationException("Failed to start lsblk process.");
+                var output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+                var lsblkOutput = System.Text.Json.JsonDocument.Parse(output);
+                if (lsblkOutput.RootElement.TryGetProperty("blockdevices", out var blockDevices))
+                {
+                    foreach (var device in blockDevices.EnumerateArray().Where(device => device.GetProperty("type").GetString() == "disk"))
+                    {
+                        var drive = new Program.DriveInfoDisplay
+                        {
+                            IsSystemDrive = false,
+                            DeviceID = device.GetProperty("name").GetString() ?? "Unknown",
+                            Size = device.GetProperty("size").GetString() ?? "Unknown",
+                            MediaType = device.GetProperty("type").GetString() ?? "Unknown",
+                            DriveLetter = device.TryGetProperty("mountpoint", out var mp) ? $@"{mp.GetString()}" ?? "" : "",
+                            Format = device.TryGetProperty("fstype", out var fs) ? fs.GetString() ?? "" : "",
+                            VolumeLabel = device.TryGetProperty("label", out var lbl) ? lbl.GetString() ?? "" : "",
+                            Model = device.TryGetProperty("model", out var mdl) ? $"{mdl.GetString()}" ?? "" : "",
+                            Status = "*UNKNOWN*",
+                            Interface = device.TryGetProperty("tran", out var trn) ? trn.GetString() ?? "" : ""
+                        };
+                        drives.Add(drive);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                AnsiConsole.MarkupLine($"[red]Error retrieving drives: {e}[/]");
+            }
+            return drives;
+        }
     }
 }

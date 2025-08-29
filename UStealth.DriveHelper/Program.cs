@@ -89,7 +89,7 @@ namespace UStealth.DriveHelper
 #if WINDOWS
                             drives = Windows.GetDrives();
 #else
-                            drives = new List<DriveInfoDisplay>();
+                            drives = Linux.GetDrives();
 #endif
                             try
                             {
