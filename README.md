@@ -24,15 +24,22 @@ U-Stealth has been rebuilt in the windows app sdk and is available here:
 
 The U-Stealth CLI is a command-line interface for managing U-Stealth settings and configurations. It allows users to perform actions without the need for a graphical interface.
 
-### WinGet
+### Windows 
+
+#### WinGet
 
 `winget install 9P1TXW2R0R4T`
 
-### Microsoft Store
+#### Microsoft Store
 
 <a href="https://apps.microsoft.com/detail/9P1TXW2R0R4T?mode=direct">
  <img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
 </a>
+
+### Linux
+I have not published this package to any package manager as of yet. I will look into publishing it to snap or apt in the future.
+For now you will have to download the executable from the releases page on this repo.
+
 
 ### GitHub Releases
 
