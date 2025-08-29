@@ -1,15 +1,92 @@
-﻿using System;
+﻿using Spectre.Console;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using Spectre.Console;
+using static UStealth.DriveHelper.Program;
 
 namespace UStealth.DriveHelper
 {
     internal static class Linux
     {
+        internal static DriveInfoDisplay? SystemDrive { get; set; } = FindSystemDrive();
+
+        private static DriveInfoDisplay? FindSystemDrive()
+        {
+            try
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "lsblk",
+                    Arguments = "-o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,LABEL,MODEL,VENDOR,TRAN -J",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using var process = System.Diagnostics.Process.Start(psi);
+                if (process == null)
+                    return null;
+                var output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+                var lsblkOutput = System.Text.Json.JsonDocument.Parse(output);
+
+                static bool IsSystemMount(string? mount) =>
+                    mount == "/" || mount == "/mnt/wslg/distro";
+
+                if (lsblkOutput.RootElement.TryGetProperty("blockdevices", out var blockDevices))
+                {
+                    foreach (var device in blockDevices.EnumerateArray())
+                    {
+                        // Check if device itself is mounted at / or /mnt/wslg/distro
+                        if (device.TryGetProperty("mountpoint", out var mp) && IsSystemMount(mp.GetString()))
+                        {
+                            return new DriveInfoDisplay
+                            {
+                                IsSystemDrive = true,
+                                DeviceID = device.GetProperty("name").GetString() ?? "Unknown",
+                                Size = device.GetProperty("size").GetString() ?? "Unknown",
+                                MediaType = device.GetProperty("type").GetString() ?? "Unknown",
+                                DriveLetter = mp.GetString() ?? "",
+                                Format = device.TryGetProperty("fstype", out var fs) ? fs.GetString() ?? "" : "",
+                                VolumeLabel = device.TryGetProperty("label", out var lbl) ? lbl.GetString() ?? "" : "",
+                                Model = device.TryGetProperty("model", out var mdl) ? mdl.GetString() ?? "" : "",
+                                Status = "*SYSTEM*",
+                                Interface = device.TryGetProperty("tran", out var trn) ? trn.GetString() ?? "" : ""
+                            };
+                        }
+                        // Check children (partitions)
+                        if (device.TryGetProperty("children", out var children))
+                        {
+                            foreach (var child in children.EnumerateArray())
+                            {
+                                if (child.TryGetProperty("mountpoint", out var cmp) && IsSystemMount(cmp.GetString()))
+                                {
+                                    return new DriveInfoDisplay
+                                    {
+                                        IsSystemDrive = true,
+                                        DeviceID = device.GetProperty("name").GetString() ?? "Unknown",
+                                        Size = device.GetProperty("size").GetString() ?? "Unknown",
+                                        MediaType = device.GetProperty("type").GetString() ?? "Unknown",
+                                        DriveLetter = cmp.GetString() ?? "",
+                                        Format = child.TryGetProperty("fstype", out var fs) ? fs.GetString() ?? "" : "",
+                                        VolumeLabel = child.TryGetProperty("label", out var lbl) ? lbl.GetString() ?? "" : "",
+                                        Model = device.TryGetProperty("model", out var mdl) ? mdl.GetString() ?? "" : "",
+                                        Status = "*SYSTEM*",
+                                        Interface = device.TryGetProperty("tran", out var trn) ? trn.GetString() ?? "" : ""
+                                    };
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore errors, return null
+            }
+            return null;
+        }
+
         [DllImport("libc")]
         private static extern uint geteuid();
 
@@ -71,9 +148,8 @@ namespace UStealth.DriveHelper
                 {
                     foreach (var device in blockDevices.EnumerateArray().Where(device => device.GetProperty("type").GetString() == "disk"))
                     {
-                        var drive = new Program.DriveInfoDisplay
+                        var drive = new DriveInfoDisplay
                         {
-                            IsSystemDrive = false,
                             DeviceID = device.GetProperty("name").GetString() ?? "Unknown",
                             Size = device.GetProperty("size").GetString() ?? "Unknown",
                             MediaType = device.GetProperty("type").GetString() ?? "Unknown",
@@ -84,6 +160,7 @@ namespace UStealth.DriveHelper
                             Status = "*UNKNOWN*",
                             Interface = device.TryGetProperty("tran", out var trn) ? trn.GetString() ?? "" : ""
                         };
+                        drive.IsSystemDrive = drive.DeviceID == SystemDrive?.DeviceID;
                         drives.Add(drive);
                     }
                 }
