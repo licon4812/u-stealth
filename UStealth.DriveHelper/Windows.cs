@@ -2,6 +2,7 @@
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -54,6 +55,31 @@ namespace UStealth.DriveHelper
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
+        /// <summary>
+        /// Windows implementation of elevating the current process to run as Administrator.
+        /// </summary>
+        public static void ElevateToAdministrator()
+        {
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = Environment.ProcessPath ?? Environment.ProcessPath,
+                    UseShellExecute = true,
+                    Verb = "runas"
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Failed to elevate: {ex.Message}[/]");
+            }
+        }
+
+        /// <summary>
+        /// Windows implementation of Getting a formatted size string from bytes. Used to select a drive
+        /// </summary>
+        /// <returns></returns>
         internal static List<string> GetDrivesForPrompt()
         {
             var drives = new List<string>();
@@ -74,7 +100,10 @@ namespace UStealth.DriveHelper
             return drives;
         }
 
-        // Finds and returns the system drive info, or null if not found
+        /// <summary>
+        /// Finds the system drive and returns its details.
+        /// </summary>
+        /// <returns></returns>
         private static DriveInfoDisplay? FindSystemDrive()
         {
             string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
@@ -141,7 +170,11 @@ namespace UStealth.DriveHelper
             return null;
         }
 
-        // Example: Toggle boot sector signature between 0xAA and 0xAB
+        /// <summary>
+        /// Windows implementation of toggling the boot sector hidden flag on a given device.
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
         internal static int ToggleBoot(string device)
         {
             if (device == SystemDrive?.DeviceID)
@@ -177,6 +210,11 @@ namespace UStealth.DriveHelper
             }
         }
 
+        /// <summary>
+        /// Windows implementation of reading and outputting the boot sector of a given device as hex.
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
         internal static int ReadBoot(string device)
         {
             var buf = ReadBootSector(device);
@@ -279,7 +317,11 @@ namespace UStealth.DriveHelper
             return drives;
         }
 
-
+        /// <summary>
+        ///  Windows implementation of reading the boot sector of a given device.
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
         static byte[]? ReadBootSector(string device)
         {
             uint GENERIC_READ = 0x80000000;
@@ -311,6 +353,12 @@ namespace UStealth.DriveHelper
             }
         }
 
+        /// <summary>
+        /// Windows implementation of writing a modified boot sector to a given device.
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="bufToWrite"></param>
+        /// <returns></returns>
         static int WriteBootSector(string device, byte[] bufToWrite)
         {
             uint GENERIC_WRITE = 0x40000000;

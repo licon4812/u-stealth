@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Spectre.Console;
 using System.Text.Json.Serialization;
-using System.Security.Principal;
+
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("UStealth.Tests")]
 namespace UStealth.DriveHelper
@@ -18,26 +18,26 @@ namespace UStealth.DriveHelper
 #if !DEBUG
                 if (!IsRunningAsAdministrator())
                 {
+#if WINDOWS
                     AnsiConsole.MarkupLine("[yellow]This tool requires administrator privileges. Relaunching with elevation...[/]");
-                    try
+                    Windows.ElevateToAdministrator();
+#else
+                    if (Linux.IsCliMode())
                     {
-                        var psi = new ProcessStartInfo
-                        {
-                            FileName = Environment.ProcessPath ?? Environment.ProcessPath,
-                            UseShellExecute = true,
-                            Verb = "runas"
-                        };
-                        Process.Start(psi);
+                        AnsiConsole.MarkupLine("[yellow]This tool requires administrator privileges[/]");
+                        AnsiConsole.MarkupLine("[red]please rerun this process as an administrator or root[/]");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        AnsiConsole.MarkupLine($"[red]Failed to elevate: {ex.Message}[/]");
+                        AnsiConsole.MarkupLine("[yellow]This tool requires administrator privileges. Relaunching with elevation...[/]");
+                        Linux.ElevateToAdministrator();
                     }
+#endif
                     return 123; // Exit current process
                 }
 #endif
 
-                while (true)
+                    while (true)
                 {
                     // Interactive Spectre.Console menu
                     var command = AnsiConsole.Prompt(
@@ -89,7 +89,7 @@ namespace UStealth.DriveHelper
 #if WINDOWS
                             drives = Windows.GetDrives();
 #else
-                            throw new NotImplementedException();
+                            drives = new List<DriveInfoDisplay>();
 #endif
                             try
                             {
@@ -168,6 +168,10 @@ namespace UStealth.DriveHelper
             }
         }
 
+        /// <summary>
+        /// Command to list drives in JSON format
+        /// </summary>
+        /// <returns></returns>
         private static int ListDrives()
         {
 #if WINDOWS
@@ -177,6 +181,11 @@ namespace UStealth.DriveHelper
 #endif
         }
 
+        /// <summary>
+        /// Command to read and display the boot sector in hex format
+        /// </summary>
+        /// <param name="deviceArg"></param>
+        /// <returns></returns>
         private static int ReadBoot(string? deviceArg)
         {
 #if WINDOWS
@@ -186,6 +195,11 @@ namespace UStealth.DriveHelper
 #endif
         }
 
+        /// <summary>
+        /// Command to toggle the boot sector signature
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
         private static int ToggleBoot(string? device)
         {
 #if WINDOWS
@@ -195,6 +209,10 @@ namespace UStealth.DriveHelper
 #endif
         }
 
+        /// <summary>
+        /// Helper to get drives for Spectre.Console prompt
+        /// </summary>
+        /// <returns></returns>
         private static List<string> GetDrivesForPrompt()
         {
 #if WINDOWS
@@ -204,12 +222,17 @@ namespace UStealth.DriveHelper
 #endif
         }
 
-        // Helper to check for admin rights
+        /// <summary>
+        /// Helper to check if running as administrator
+        /// </summary>
+        /// <returns></returns>
         private static bool IsRunningAsAdministrator()
         {
-            using var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+#if WINDOWS
+            return Windows.IsRunningAdministrator();
+#else
+            return Linux.IsRunningAdministrator();
+#endif
         }
 
         private static void Help()
