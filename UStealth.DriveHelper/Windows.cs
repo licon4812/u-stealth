@@ -177,71 +177,16 @@ namespace UStealth.DriveHelper
             return 0;
         }
 
+        /// <summary>
+        /// Lists drives and outputs their details as JSON.
+        /// </summary>
+        /// <returns></returns>
         internal static int ListDrives()
         {
-            var drives = new List<DriveInfoDisplay>();
+            
             try
             {
-                string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
-                using var connection = new WmiConnection();
-                var diskDrives = connection.CreateQuery("SELECT * FROM Win32_DiskDrive");
-                foreach (var drive in diskDrives)
-                {
-                    string deviceId = drive["DeviceID"]?.ToString();
-                    string model = drive["Model"]?.ToString();
-                    string interfaceType = drive["InterfaceType"]?.ToString();
-                    string mediaType = drive["MediaType"]?.ToString();
-                    string size = drive["Size"]?.ToString();
-                    string status = "*UNKNOWN*";
-                    string driveLetters = "";
-                    string volLabel = null;
-                    string format = null;
-                    bool systemDrive = false;
-
-                    // Find drive letters and volume info
-                    try
-                    {
-                        var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
-                        foreach (var partition in partitionQuery)
-                        {
-                            var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
-                            foreach (var logicalDisk in logicalQuery)
-                            {
-                                if (!string.IsNullOrEmpty(driveLetters))
-                                    driveLetters += ", ";
-                                driveLetters += logicalDisk["DeviceID"]?.ToString();
-                                if (driveLetters == sysDrive)
-                                {
-                                    systemDrive = true;
-                                }
-                                volLabel = logicalDisk["VolumeName"]?.ToString();
-                                format = logicalDisk["FileSystem"]?.ToString();
-                            }
-                        }
-                    }
-                    catch { }
-
-                    // Boot sector status
-                    var bufR = ReadBootSector(deviceId);
-                    if (bufR == null)
-                        status = "*UNKNOWN*";
-                    else
-                        status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
-
-                    drives.Add(new DriveInfoDisplay
-                    {
-                        IsSystemDrive = systemDrive,
-                        DeviceID = deviceId,
-                        Model = model,
-                        Interface = interfaceType,
-                        MediaType = mediaType,
-                        Size = FormatSize(size),
-                        VolumeLabel = volLabel,
-                        Format = format,
-                        DriveLetter = driveLetters,
-                        Status = status
-                    });
-                }
+                var drives = GetDrives();
                 Console.WriteLine(JsonSerializer.Serialize(drives, DriveInfoDisplayJsonContext.Default.ListDriveInfoDisplay));
                 return 0;
             }
@@ -250,6 +195,76 @@ namespace UStealth.DriveHelper
                 AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
                 return 111;
             }
+        }
+
+        /// <summary>
+        /// Gets a list of drives with their details.
+        /// </summary>
+        /// <returns></returns>
+        internal static List<DriveInfoDisplay> GetDrives()
+        {
+            var drives = new List<DriveInfoDisplay>();
+            string sysDrive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2);
+            using var connection = new WmiConnection();
+            var diskDrives = connection.CreateQuery("SELECT * FROM Win32_DiskDrive");
+            foreach (var drive in diskDrives)
+            {
+                string deviceId = drive["DeviceID"]?.ToString();
+                string model = drive["Model"]?.ToString();
+                string interfaceType = drive["InterfaceType"]?.ToString();
+                string mediaType = drive["MediaType"]?.ToString();
+                string size = drive["Size"]?.ToString();
+                string status = "*UNKNOWN*";
+                string driveLetters = "";
+                string volLabel = null;
+                string format = null;
+                bool systemDrive = false;
+
+                // Find drive letters and volume info
+                try
+                {
+                    var partitionQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{deviceId}'}} WHERE AssocClass=Win32_DiskDriveToDiskPartition");
+                    foreach (var partition in partitionQuery)
+                    {
+                        var logicalQuery = connection.CreateQuery($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["deviceId"]}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
+                        foreach (var logicalDisk in logicalQuery)
+                        {
+                            if (!string.IsNullOrEmpty(driveLetters))
+                                driveLetters += ", ";
+                            driveLetters += logicalDisk["DeviceID"]?.ToString();
+                            if (driveLetters == sysDrive)
+                            {
+                                systemDrive = true;
+                            }
+                            volLabel = logicalDisk["VolumeName"]?.ToString();
+                            format = logicalDisk["FileSystem"]?.ToString();
+                        }
+                    }
+                }
+                catch { }
+
+                // Boot sector status
+                var bufR = ReadBootSector(deviceId);
+                if (bufR == null)
+                    status = "*UNKNOWN*";
+                else
+                    status = bufR[511] switch { 170 => "NORMAL", 171 => "HIDDEN", _ => "*UNKNOWN*" };
+
+                drives.Add(new DriveInfoDisplay
+                {
+                    IsSystemDrive = systemDrive,
+                    DeviceID = deviceId,
+                    Model = model,
+                    Interface = interfaceType,
+                    MediaType = mediaType,
+                    Size = FormatSize(size),
+                    VolumeLabel = volLabel,
+                    Format = format,
+                    DriveLetter = driveLetters,
+                    Status = status
+                });
+            }
+            return drives;
         }
 
 

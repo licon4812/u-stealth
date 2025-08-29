@@ -86,7 +86,11 @@ namespace UStealth.DriveHelper
                         case "list drives":
                             // Interactive Spectre.Console table view
                             var drives = new List<DriveInfoDisplay>();
-                            // todo retrieve drives
+#if WINDOWS
+                            drives = Windows.GetDrives();
+#else
+                            throw new NotImplementedException();
+#endif
                             try
                             {
                                 // Print as Spectre.Console table
@@ -196,7 +200,7 @@ namespace UStealth.DriveHelper
 #if WINDOWS
             return Windows.GetDrivesForPrompt();
 #else
-            throw new PlatformNotSupportedException("This tool is only supported on Windows.");
+            throw new NotImplementedException();
 #endif
         }
 
