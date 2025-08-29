@@ -38,7 +38,8 @@ The U-Stealth CLI is a command-line interface for managing U-Stealth settings an
 
 | Release Name                                             | Version | Download Link                                                              |
 |----------------------------------------------------------|---------|----------------------------------------------------------------------------|
-| CLI 1.0.2.0 Native AOT								   | 1.0.2.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/CLI-1.0.2.0)|				
+| CLI 1.0.3.0 Linux Release                                | 1.0.3.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/CLI-1.0.3.0)|
+| CLI 1.0.2.0 Native AOT                                   | 1.0.2.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/CLI-1.0.2.0)|				
 | Migrated to the Windows App SDK and Released CLI version | 1.0.1.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/1.0.1.0)    |
 
 ## Legacy Version
