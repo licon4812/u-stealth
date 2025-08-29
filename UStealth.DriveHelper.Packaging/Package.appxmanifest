@@ -10,7 +10,7 @@
 	<Identity
 	  Name="23610AlickolliSoftware.U-StealthCLI"
 	  Publisher="CN=5CECD841-CF4E-45AF-B443-573F4A3614A0"
-	  Version="1.0.2.0" />
+	  Version="1.0.3.0" />
 
 	<Properties>
 		<DisplayName>U-Stealth CLI</DisplayName>
