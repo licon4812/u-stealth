@@ -37,12 +37,13 @@ namespace UStealth.ModularPipelines.Modules
             var tfmOutput = tfmResult?.StandardOutput?.Trim();
             var tfm = string.IsNullOrWhiteSpace(tfmOutput) ? "net9.0-windows" : tfmOutput;
 
-            foreach (var publishProfileName in publishProfileNames)
+            foreach (var publishProfileName in publishProfileNames.Where(p=>p.Contains("win")))
             {
                 await context.DotNet().Publish(new DotNetPublishOptions()
                 {
                     WorkingDirectory = driveHelperProject,
-                    Arguments = [$"/p:PublishProfile=\\Properties\\{publishProfileName}"]
+                    Arguments = [$"/p:PublishProfile=\\Properties\\{publishProfileName}"],
+                    Framework = tfm
                 }, cancellationToken);
                 var publishedDir = $@"{driveHelperProject}\bin\release\{tfm}\{publishProfileName}\publish";
                 var publishedExecutable = $@"{publishedDir}\UStealth.DriveHelper.exe";

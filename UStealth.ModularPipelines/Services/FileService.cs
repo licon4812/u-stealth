@@ -9,7 +9,7 @@ namespace UStealth.ModularPipelines.Services
         {
             var currentDir = new DirectoryInfo(AppContext.BaseDirectory);
 
-            while (currentDir != null && !currentDir.GetFiles("*.sln").Any())
+            while (currentDir != null && !currentDir.GetFiles("*.slnx").Any())
             {
                 currentDir = currentDir.Parent;
             }
