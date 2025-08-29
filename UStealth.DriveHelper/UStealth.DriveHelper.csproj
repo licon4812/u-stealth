@@ -15,6 +15,9 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net9.0-windows' ">
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
   </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net9.0-windows'">
+    <Compile Remove="Windows.cs" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(RuntimeIdentifiers)' != '' And $(RuntimeIdentifiers.Contains('linux')) ">
     <!-- Linux-specific properties here -->
   </PropertyGroup>	

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -41,6 +42,17 @@ namespace UStealth.DriveHelper
         private static extern bool DeviceIoControl(SafeFileHandle hDevice, uint dwIoControlCode,
             byte[] lpInBuffer, int nInBufferSize, byte[] lpOutBuffer, int nOutBufferSize,
             out int lpBytesReturned, IntPtr lpOverlapped);
+
+        /// <summary>
+        /// Windows implementation of checking to see if the current user is running as Administrator.
+        /// </summary>
+        /// <returns></returns>
+        internal static bool IsRunningAdministrator()
+        {
+            using var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
 
         internal static List<string> GetDrivesForPrompt()
         {
