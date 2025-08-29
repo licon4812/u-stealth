@@ -108,16 +108,16 @@ namespace UStealth.DriveHelper
                                 foreach (var d in drives)
                                 {
                                     table.AddRow(
-                                        d.IsSystemDrive.ToString() ?? "",
-                                        d.DeviceID ?? "",
-                                        d.Model ?? "",
-                                        d.Interface ?? "",
-                                        d.MediaType ?? "",
-                                        FormatSize(d.Size),
-                                        d.VolumeLabel ?? "",
-                                        d.Format ?? "",
-                                        d.DriveLetter ?? "",
-                                        d.Status ?? ""
+                                        Markup.Escape(d.IsSystemDrive.ToString() ?? ""),
+                                        Markup.Escape(d.DeviceID ?? ""),
+                                        Markup.Escape(d.Model ?? ""),
+                                        Markup.Escape(d.Interface ?? ""),
+                                        Markup.Escape(d.MediaType ?? ""),
+                                        Markup.Escape(FormatSize(d.Size)),
+                                        Markup.Escape(d.VolumeLabel ?? ""),
+                                        Markup.Escape(d.Format ?? ""),
+                                        Markup.Escape(d.DriveLetter ?? ""),
+                                        Markup.Escape(d.Status ?? "")
                                     );
                                 }
                                 AnsiConsole.Write(table);
