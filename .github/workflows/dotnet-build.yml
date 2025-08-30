@@ -22,7 +22,7 @@ jobs:
     - name: Build
       run: dotnet build UStealth.CICD.slnx --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal --framework net9.0-windows
+      run: dotnet test .\UStealth.Tests\UStealth.Tests.csproj --no-build --verbosity normal --framework net9.0-windows
     - name: Build Artifacts
       run: dotnet run .\UStealth.ModularPipelines\UStealth.ModularPipelines.csproj
       
