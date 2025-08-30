@@ -65,8 +65,14 @@ namespace UStealth.Tests
                 var lines = output.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
                 string json = lines.Length > 0 ? lines[^1] : string.Empty;
                 if (string.IsNullOrWhiteSpace(json)) return [];
-                var drives = JsonSerializer.Deserialize(json, typeof(List<Program.DriveInfoDisplay>), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) as List<Program.DriveInfoDisplay>;
+                var drives = JsonSerializer.Deserialize<List<Program.DriveInfoDisplay>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 return drives ?? [];
+            }
+            catch(Exception exception)
+            {
+                Console.SetOut(originalOut);
+                Console.WriteLine(exception.Message);
+                throw;
             }
             finally
             {
