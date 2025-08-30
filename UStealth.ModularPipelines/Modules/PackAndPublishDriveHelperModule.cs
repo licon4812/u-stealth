@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ModularPipelines.Attributes;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
 using ModularPipelines.DotNet.Options;
@@ -11,7 +12,8 @@ using UStealth.ModularPipelines.Services;
 
 namespace UStealth.ModularPipelines.Modules
 {
-    public class PackAndPublishDriveHelperModule(FileService fileService) : Module<Command>
+    [RunOnWindowsOnly]
+    public class PackAndPublishDriveHelperModuleWindows(FileService fileService) : Module<Command>
     {
         protected override async Task<Command?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
         {
@@ -20,7 +22,7 @@ namespace UStealth.ModularPipelines.Modules
             var publishProfiles = context.FileSystem.GetFiles($@"{driveHelperProject}\Properties"!, file => file.Exists );
             var publishProfileNames = publishProfiles
                 .Where(f => f.Path.EndsWith(".pubxml", StringComparison.OrdinalIgnoreCase))
-                .Select(f => System.IO.Path.GetFileNameWithoutExtension(f.Path))
+                .Select(f => Path.GetFileNameWithoutExtension(f.Path))
                 .ToList();
             // Clean up the bin folder if it exists
             if (context.FileSystem.FolderExists($@"{driveHelperProject}\bin"!))
@@ -31,31 +33,57 @@ namespace UStealth.ModularPipelines.Modules
             // Get TFM dynamically
             var msbuildOptions = new DotNetMsbuildOptions($@"{driveHelperProject}\UStealth.DriveHelper.csproj")
             {
-                Arguments = ["-getProperty:TargetFramework"]
+                Arguments = ["-getProperty:TargetFrameworks"]
             };
             var tfmResult = await context.DotNet().Msbuild(msbuildOptions, cancellationToken);
             var tfmOutput = tfmResult?.StandardOutput?.Trim();
-            var tfm = string.IsNullOrWhiteSpace(tfmOutput) ? "net9.0-windows" : tfmOutput;
-
-            foreach (var publishProfileName in publishProfileNames.Where(p=>p.Contains("win")))
+            var targetFrameworks = tfmOutput.Split([';'], StringSplitOptions.RemoveEmptyEntries);
+            foreach (var tfm in targetFrameworks)
             {
-                await context.DotNet().Publish(new DotNetPublishOptions()
+                var filteredProfiles = tfm switch
                 {
-                    WorkingDirectory = driveHelperProject,
-                    Arguments = [$"/p:PublishProfile=\\Properties\\{publishProfileName}"],
-                    Framework = tfm
-                }, cancellationToken);
-                var publishedDir = $@"{driveHelperProject}\bin\release\{tfm}\{publishProfileName}\publish";
-                var publishedExecutable = $@"{publishedDir}\UStealth.DriveHelper.exe";
-                var distributionFolder = Path.Combine(publishedDir, $"ustealth-cli-{publishProfileName}");
-                if (!Directory.Exists(distributionFolder))
+                    _ when tfm.Contains("windows", StringComparison.OrdinalIgnoreCase) =>
+                        publishProfileNames.Where(p => p.Contains("win", StringComparison.OrdinalIgnoreCase)),
+                    _ when tfm.Contains("osx",StringComparison.OrdinalIgnoreCase) =>
+                        publishProfileNames.Where(p => p.Contains("osx", StringComparison.OrdinalIgnoreCase)),
+                    _ => publishProfileNames.Where(p=>p.Contains("linux",StringComparison.OrdinalIgnoreCase))
+                };
+
+                foreach (var publishProfileName in filteredProfiles)
                 {
-                    Directory.CreateDirectory(distributionFolder);
+                    await context.DotNet().Publish(new DotNetPublishOptions()
+                    {
+                        WorkingDirectory = driveHelperProject,
+                        Arguments = [$"/p:PublishProfile=\\Properties\\{publishProfileName}"],
+                        Framework = tfm
+                    }, cancellationToken);
+                    var publishedDir = $@"{driveHelperProject}\bin\release\{tfm}\{publishProfileName}\publish";
+                    var distributionFolder = Path.Combine(publishedDir, $"ustealth-cli-{publishProfileName}");
+                    var renamedFileName = string.Empty;
+                    if (!Directory.Exists(distributionFolder))
+                    {
+                        Directory.CreateDirectory(distributionFolder);
+                    }
+                    var publishedExecutable = string.Empty;
+                    if (publishProfileName.Contains("win"))
+                    {
+                        publishedExecutable = $@"{publishedDir}\UStealth.DriveHelper.exe";
+                        renamedFileName = "ustealth.exe";
+                    }
+                    else if (publishProfileName.Contains("osx"))
+                    {
+                        //todo: add mac support
+                    }
+                    else
+                    {
+                        publishedExecutable = $@"{publishedDir}\UStealth.DriveHelper";
+                        renamedFileName = "ustealth";
+                    }
+                    context.FileSystem.CopyFile(publishedExecutable, $@"{distributionFolder}\{renamedFileName}");
+                    var zippedFolder = context.Zip.ZipFolder(distributionFolder, publishedDir);
+                    context.FileSystem.MoveFile(zippedFolder, $@"{publishedDir}\ustealth-cli-{publishProfileName}.zip");
+                    context.Logger.LogToConsole($"Published and zipped {publishProfileName} to {zippedFolder.Path}");
                 }
-                var renamedExecutable = context.FileSystem.CopyFile(publishedExecutable, $@"{distributionFolder}\ustealth.exe");
-                var zippedFolder = context.Zip.ZipFolder(distributionFolder,publishedDir);
-                context.FileSystem.MoveFile(zippedFolder, $@"{publishedDir}\ustealth-cli-{publishProfileName}.zip");
-                context.Logger.LogToConsole($"Published and zipped {publishProfileName} to {zippedFolder.Path}");
             }
             return await Task.FromResult<Command?>(new Command(null));
         }
