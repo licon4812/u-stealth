@@ -48,7 +48,7 @@ jobs:
           name: build-output
       - name: Test
         run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
+          if [ "${{ runner.os }}" = "Windows" ]; then
             dotnet test .\UStealth.Tests\UStealth.Tests.csproj --no-build --verbosity normal --framework net9.0-windows
           else
             dotnet test ./UStealth.Tests/UStealth.Tests.csproj --no-build --verbosity normal --framework net9.0
