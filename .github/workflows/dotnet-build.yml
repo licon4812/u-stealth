@@ -50,9 +50,9 @@ jobs:
         shell: bash
         run: |
           if [ "${{ runner.os }}" = "Windows" ]; then
-            dotnet test .\UStealth.Tests\UStealth.Tests.csproj --no-build --verbosity normal --framework net9.0-windows
+            dotnet test .\\UStealth.Tests\\UStealth.Tests.csproj --no-build --verbosity normal --framework net9.0-windows
           else
-            dotnet test ./UStealth.Tests/UStealth.Tests.csproj --no-build --verbosity normal --framework net9.0
+            dotnet test .//UStealth.Tests//UStealth.Tests.csproj --no-build --verbosity normal --framework net9.0
           fi
 
   artifacts:
