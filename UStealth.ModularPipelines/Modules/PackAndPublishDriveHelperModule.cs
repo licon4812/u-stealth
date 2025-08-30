@@ -13,7 +13,7 @@ using UStealth.ModularPipelines.Services;
 namespace UStealth.ModularPipelines.Modules
 {
     [RunOnWindowsOnly]
-    public class PackAndPublishDriveHelperModuleWindows(FileService fileService) : Module<Command>
+    public class PackAndPublishDriveHelperModule(FileService fileService) : Module<Command>
     {
         protected override async Task<Command?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
         {

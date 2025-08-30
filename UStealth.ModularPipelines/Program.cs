@@ -8,5 +8,5 @@ await PipelineHostBuilder.Create()
     {
         collection.AddSingleton<FileService>();
     })
-    .AddModule<PackAndPublishDriveHelperModuleWindows>()
+    .AddModule<PackAndPublishDriveHelperModule>()
     .ExecutePipelineAsync();
