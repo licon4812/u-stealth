@@ -34,8 +34,8 @@
                 Header="Appearance &amp; behavior"
                 IsExpanded="true">
                 <devWinUi:SettingsExpander.Items>
+                    <!--  App theme Card  -->
                     <devWinUi:SettingsCard
-                        Margin="0,0,0,0"
                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         CornerRadius="8"
                         Description="Select which app theme to display"
@@ -54,15 +54,39 @@
                             <ComboBoxItem Content="System" Tag="Default" />
                         </ComboBox>
                     </devWinUi:SettingsCard>
+                    <!--  Backdrop Card  -->
                     <devWinUi:SettingsCard
-                        Margin="0,0,0,0"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="8"
+                        Description="Select which app theme to display"
+                        Header="App Backdrop"
+                        IsClickEnabled="False">
+                        <devWinUi:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xEF1F;" />
+                        </devWinUi:SettingsCard.HeaderIcon>
+                        <ComboBox
+                            x:Name="BackdropComboBox"
+                            Width="100"
+                            HorizontalAlignment="Right"
+                            SelectedValuePath="Tag"
+                            SelectionChanged="BackdropComboBox_OnSelectionChanged">
+                            <ComboBoxItem Content="None" Tag="None" />
+                            <ComboBoxItem Content="Mica" Tag="Mica" />
+                            <ComboBoxItem Content="Mica Alt" Tag="MicaAlt" />
+                            <ComboBoxItem Content="Acrylic" Tag="Acrylic" />
+                            <ComboBoxItem Content="Acrylic Thin" Tag="AcrylicThin" />
+                            <ComboBoxItem Content="Transparent" Tag="Transparent" />
+                        </ComboBox>
+                    </devWinUi:SettingsCard>
+                    <!--  Navigation Style Card  -->
+                    <devWinUi:SettingsCard
                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         CornerRadius="8"
                         Description="Choose how navigation is displayed"
                         Header="Navigation Style"
                         IsClickEnabled="False">
                         <devWinUi:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE8A7;" />
+                            <FontIcon FontFamily="Segoe MDL2 Assets " Glyph="&#xE8A7;" />
                         </devWinUi:SettingsCard.HeaderIcon>
                         <ComboBox
                             x:Name="NavigationStyleComboBox"
