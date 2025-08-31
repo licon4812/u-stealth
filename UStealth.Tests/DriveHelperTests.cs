@@ -54,10 +54,10 @@ namespace UStealth.Tests
         {
             var method = typeof(Program).GetMethod("ListDrives", BindingFlags.Static | BindingFlags.NonPublic);
             var originalOut = Console.Out;
-            using var sw = new System.IO.StringWriter();
-            Console.SetOut(sw);
             try
             {
+                using var sw = new System.IO.StringWriter();
+                Console.SetOut(sw);
                 method.Invoke(null, null);
                 Console.Out.Flush();
                 var output = sw.ToString();
