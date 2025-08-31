@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
+using DevWinUI;
 using UStealth.WinUI.Pages;
 
 namespace UStealth.WinUI
@@ -13,9 +14,7 @@ namespace UStealth.WinUI
         public string AppName => "U-Stealth";
         public string AppVersion => $"v{GetAppVersion()}";
         public Microsoft.UI.Xaml.Media.Imaging.BitmapImage AppIconUri => new(new Uri("ms-appx:///Assets/StoreLogo.png"));
-
         public  NavigationViewPaneDisplayMode NavigationStyle { get; set; }
-
 
         public MainWindow()
         {

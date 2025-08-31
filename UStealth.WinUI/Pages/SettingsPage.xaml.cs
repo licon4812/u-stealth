@@ -2,6 +2,7 @@ using System;
 using Microsoft.UI.Xaml.Controls;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using DevWinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.Storage;
 //using Microsoft.UI.Xaml;
@@ -36,6 +37,16 @@ namespace UStealth.WinUI.Pages
                 NavigationViewPaneDisplayMode.LeftMinimal => "Left Minimal",
                 NavigationViewPaneDisplayMode.Auto => "Auto",
                 _ => "Top"
+            };
+            BackdropComboBox.SelectedValue = App.Current.AppBackdrop switch
+            {
+                BackdropType.None => "None",
+                BackdropType.Mica => "Mica",
+                BackdropType.MicaAlt => "MicaAlt",
+                BackdropType.Acrylic => "Acrylic",
+                BackdropType.AcrylicThin => "AcrylicThin",
+                BackdropType.Transparent => "Transparent",
+                _ => "Mica"
             };
         }
 
@@ -98,6 +109,21 @@ namespace UStealth.WinUI.Pages
             };
             
             MainWindow.Current.NavigationViewControl.PaneDisplayMode = MainWindow.Current.NavigationStyle;
+        }
+
+        private async void BackdropComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                App.Current.ThemeService.OnBackdropComboBoxSelectionChanged(sender);
+                if (BackdropComboBox.SelectedItem is not ComboBoxItem selectedItem) return;
+                string selectedBackdrop = selectedItem.Tag?.ToString() ?? "Mica";
+                Windows.Storage.ApplicationData.Current.LocalSettings.Values["AppBackdrop"] = selectedBackdrop;
+            }
+            catch (Exception ex)
+            {
+                await ShowDialog("Error", ex.Message);
+            }
         }
     }
 }

@@ -30,8 +30,8 @@ namespace UStealth.WinUI
         private Window? _window;
         public Frame RootFrame { get; set; }
         public new static App Current => (App)Application.Current;
-
         public IThemeService ThemeService { get; set; }
+        public BackdropType AppBackdrop { get; set; }
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -52,8 +52,9 @@ namespace UStealth.WinUI
             _window.Activate();
             ThemeService = new ThemeService();
             ThemeService.Initialize(_window);
-            ThemeService.ConfigureBackdrop(BackdropType.Mica);
             SetApplicationTheme();
+            SetApplicationBackDrop();
+            ThemeService.ConfigureBackdrop(AppBackdrop);
         }
 
         public void SetApplicationTheme()
@@ -77,6 +78,24 @@ namespace UStealth.WinUI
             else
             {
                 ThemeService.SetElementTheme(ElementTheme.Default);
+            }
+        }
+
+        public void SetApplicationBackDrop()
+        {
+            var backdrop = Windows.Storage.ApplicationData.Current.LocalSettings.Values["AppBackdrop"]?.ToString();
+            if (backdrop != null)
+            {
+                AppBackdrop = backdrop switch
+                {
+                    "None" => BackdropType.None,
+                    "Mica" => BackdropType.Mica,
+                    "MicaAlt" => BackdropType.MicaAlt,
+                    "Acrylic" => BackdropType.Acrylic,
+                    "AcrylicThin" => BackdropType.AcrylicThin,
+                    "Transparent" => BackdropType.Transparent,
+                    _ => BackdropType.Mica
+                };
             }
         }
     }
