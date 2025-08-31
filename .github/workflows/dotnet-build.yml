@@ -79,4 +79,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cli-zips
-          path: temp-zips\*.zip
+          path: temp-zips\\*.zip
