@@ -1,8 +1,6 @@
-using System;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
-namespace UStealth.WinUI
+namespace UStealth.WinUI.Models
 {
     [WinRT.GeneratedBindableCustomPropertyAttribute]
     public partial class DriveInfoModel : INotifyPropertyChanged
