@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Mime;
@@ -92,12 +93,7 @@ namespace UStealth.DriveHelper
                             continue; // Skip the "Command finished" message
                         case "list drives":
                             // Interactive Spectre.Console table view
-                            var drives = new List<DriveInfoDisplay>();
-#if WINDOWS
-                            drives = Windows.GetDrives();
-#else
-                            drives = Linux.GetDrives();
-#endif
+                            var drives = GetDrives();
                             try
                             {
                                 // Print as Spectre.Console table
@@ -176,6 +172,20 @@ namespace UStealth.DriveHelper
                 Console.Error.WriteLine($"Error: {ex.Message}");
                 return 110;
             }
+        }
+
+        /// <summary>
+        /// Helper to get drives as a collection of DriveInfoDisplay
+        /// </summary>
+        /// <returns></returns>
+        internal static IEnumerable<DriveInfoDisplay> GetDrives()
+        {
+            var drives = new List<DriveInfoDisplay>();
+#if WINDOWS
+            return Windows.GetDrives();
+#else
+            return Linux.GetDrives();
+#endif
         }
 
         /// <summary>
