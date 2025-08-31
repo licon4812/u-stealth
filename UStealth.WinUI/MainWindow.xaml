@@ -26,9 +26,11 @@
         </TitleBar>
 
         <NavigationView
+            x:Name="NavigationViewControl"
             Grid.Row="1"
+            x:FieldModifier="public"
             IsBackButtonVisible="Collapsed"
-            PaneDisplayMode="Top"
+            PaneDisplayMode="{x:Bind NavigationStyle}"
             SelectionChanged="NavigationView_OnSelectionChanged"
             SelectionFollowsFocus="Enabled">
             <NavigationView.MenuItems>
