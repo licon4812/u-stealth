@@ -70,8 +70,13 @@ jobs:
           name: build-output
       - name: Build Artifacts
         run: dotnet run --project .\\UStealth.ModularPipelines\\UStealth.ModularPipelines.csproj
+      - name: Prepare ZIPs for upload
+        run: |
+          mkdir -p temp-zips
+          for %f in (UStealth.DriveHelper\bin\Release\**\*.zip) do copy "%f" temp-zips\
+        shell: cmd
       - name: Upload DriveHelper ZIPs
         uses: actions/upload-artifact@v4
         with:
           name: cli-zips
-          path: UStealth.DriveHelper\\bin\\Release\\**\\*.zip
+          path: temp-zips\*.zip
