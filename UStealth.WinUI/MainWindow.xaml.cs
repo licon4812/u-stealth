@@ -9,13 +9,19 @@ namespace UStealth.WinUI
     public sealed partial class MainWindow : Window
     {
 
+        public new static MainWindow? Current { get; private set; }
         public string AppName => "U-Stealth";
         public string AppVersion => $"v{GetAppVersion()}";
-        public Microsoft.UI.Xaml.Media.Imaging.BitmapImage AppIconUri => new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri("ms-appx:///Assets/StoreLogo.png"));
+        public Microsoft.UI.Xaml.Media.Imaging.BitmapImage AppIconUri => new(new Uri("ms-appx:///Assets/StoreLogo.png"));
+
+        public  NavigationViewPaneDisplayMode NavigationStyle { get; set; }
+
 
         public MainWindow()
         {
+            Current = this;
             InitializeComponent();
+            GetNavigationStyle();
             ExtendsContentIntoTitleBar = true;
             AppIcon.ImageSource = AppIconUri;
             TitleBar.Title = $"{AppName} - {AppVersion}";
@@ -38,11 +44,6 @@ namespace UStealth.WinUI
         }
 
 
-        //C# code behind
-        private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
-        {
-            // Don't handle settings here, as it is handled by SelectionChanged
-        }
 
         private void NavigationView_OnSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
@@ -62,6 +63,20 @@ namespace UStealth.WinUI
                 pageType = typeof(SettingsPage);
             }
             rootFrame.NavigateToType(pageType, null, navOptions);
+        }
+
+
+        private void GetNavigationStyle()
+        {
+            var navStyle = Windows.Storage.ApplicationData.Current.LocalSettings.Values["NavigationStyle"]?.ToString();
+            NavigationStyle = navStyle switch
+            {
+                "Left" => NavigationViewPaneDisplayMode.Left,
+                "Left Compat" => NavigationViewPaneDisplayMode.LeftCompact,
+                "Left Minimal" => NavigationViewPaneDisplayMode.LeftMinimal,
+                "Auto" => NavigationViewPaneDisplayMode.Auto,
+                _ => NavigationViewPaneDisplayMode.Top
+            };
         }
     }
 }

@@ -72,6 +72,47 @@
                             </ComboBox>
                         </Grid>
                     </Border>
+                    <!--  Navigation style card  -->
+                    <Border
+                        Margin="10,0,10,0"
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Column="0"
+                                Margin="0,0,16,0"
+                                VerticalAlignment="Center"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="24"
+                                Text="&#xE8A7;" />
+                            <StackPanel Grid.Column="1">
+                                <TextBlock FontWeight="SemiBold" Text="Navigation style" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="Choose how navigation is displayed" />
+                            </StackPanel>
+                            <ComboBox
+                                x:Name="NavigationStyleComboBox"
+                                Grid.Column="2"
+                                Width="100"
+                                HorizontalAlignment="Right"
+                                SelectedValuePath="Tag"
+                                SelectionChanged="NavigationStyleComboBox_OnSelectionChanged">
+                                <ComboBoxItem Content="Top" Tag="Top" />
+                                <ComboBoxItem Content="Left" Tag="Left" />
+                                <ComboBoxItem Content="Left Compact" Tag="Left Compact" />
+                                <ComboBoxItem Content="Left Minimal" Tag="Left Minimal" />
+                                <ComboBoxItem Content="Left Auto" Tag="Left Auto" />
+                            </ComboBox>
+                        </Grid>
+                    </Border>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

@@ -28,6 +28,15 @@ namespace UStealth.WinUI.Pages
         private void Page_Loaded()
         {
             App.Current.ThemeService.SetThemeComboBoxDefaultItem(ThemeComboBox);
+            NavigationStyleComboBox.SelectedValue = MainWindow.Current!.NavigationStyle switch
+            {
+                NavigationViewPaneDisplayMode.Top => "Top",
+                NavigationViewPaneDisplayMode.Left => "Left",
+                NavigationViewPaneDisplayMode.LeftCompact => "Left Compact",
+                NavigationViewPaneDisplayMode.LeftMinimal => "Left Minimal",
+                NavigationViewPaneDisplayMode.Auto => "Auto",
+                _ => "Top"
+            };
         }
 
 
@@ -39,8 +48,8 @@ namespace UStealth.WinUI.Pages
                 if (ThemeComboBox.SelectedItem is not ComboBoxItem selectedItem) return;
                 string selectedTheme = selectedItem.Tag?.ToString() ?? "Default";
                 if (selectedTheme == "Default")
-                {
-                    await ClearTheme();
+                { 
+                    ClearTheme();
                 }
                 else
                 {
@@ -53,14 +62,15 @@ namespace UStealth.WinUI.Pages
             }
         }
 
-        
 
-        private async Task ClearTheme()
-        { 
+
+        private void ClearTheme()
+        {
             Windows.Storage.ApplicationData.Current.LocalSettings.Values.Remove("AppTheme");
         }
 
-        private async Task ShowDialog(string title,string message)
+
+        private async Task ShowDialog(string title, string message)
         {
             var dialog = new ContentDialog
             {
@@ -70,6 +80,24 @@ namespace UStealth.WinUI.Pages
                 XamlRoot = this.XamlRoot // Use the page's XamlRoot
             };
             await dialog.ShowAsync();
+        }
+
+        private void NavigationStyleComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (NavigationStyleComboBox.SelectedItem is not ComboBoxItem selectedItem) return;
+            string selectedStyle = selectedItem.Tag?.ToString() ?? "Top";
+            Windows.Storage.ApplicationData.Current.LocalSettings.Values["NavigationStyle"] = selectedStyle;
+            MainWindow.Current!.NavigationStyle = selectedStyle switch
+            {
+                "Top" => NavigationViewPaneDisplayMode.Top,
+                "Left" => NavigationViewPaneDisplayMode.Left,
+                "Left Compact" => NavigationViewPaneDisplayMode.LeftCompact,
+                "Left Minimal" => NavigationViewPaneDisplayMode.LeftMinimal,
+                "Auto" => NavigationViewPaneDisplayMode.Auto,
+                _ => MainWindow.Current.NavigationStyle
+            };
+            
+            MainWindow.Current.NavigationViewControl.PaneDisplayMode = MainWindow.Current.NavigationStyle;
         }
     }
 }
