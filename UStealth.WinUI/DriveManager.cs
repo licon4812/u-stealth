@@ -12,9 +12,9 @@ namespace UStealth.WinUI
 {
     public class DriveManager
     {
-        public List<DriveInfoModel> GetDriveList()
+        public List<Models.DriveInfoModel> GetDriveList()
         {
-            var drives = new List<DriveInfoModel>();
+            var drives = new List<Models.DriveInfoModel>();
             try
             {
                 var psi = new ProcessStartInfo
@@ -84,7 +84,7 @@ namespace UStealth.WinUI
     }
 
     // Add a partial context class for source generation
-    [JsonSerializable(typeof(List<DriveInfoModel>))]
+    [JsonSerializable(typeof(List<Models.DriveInfoModel>))]
     internal partial class DriveInfoModelJsonContext : JsonSerializerContext
     {
     }

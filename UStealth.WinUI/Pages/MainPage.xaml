@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="UStealth.WinUI.Pages.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:UStealth.WinUI.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:UStealth.WinUI.Models"
+    xmlns:tableView="using:WinUI.TableView"
+    mc:Ignorable="d">
+
+    <Grid Padding="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <ProgressRing x:Name="ProgressRing" IsActive="False" />
+            <Button HorizontalAlignment="Right" Click="RefreshButton_Click">
+                <FontIcon Glyph="&#xE72C;" />
+            </Button>
+        </StackPanel>
+        <tableView:TableView
+            x:Name="DrivesTableView"
+            Grid.Row="1"
+            Margin="0,16,0,0"
+            x:DataType="models:DriveInfoModel"
+            AutoGenerateColumns="False"
+            ItemsSource="{x:Bind Drives}"
+            SelectionMode="Single">
+            <tableView:TableView.Columns>
+                <tableView:TableViewCheckBoxColumn
+                    Binding="{Binding IsSystemDrive}"
+                    Header="System Drive"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Binding="{Binding DriveLetter}"
+                    Header="Drive Letter"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="80"
+                    Binding="{Binding Interface}"
+                    Header="Interface"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Binding="{Binding VolumeLabel}"
+                    Header="Volume Label"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Binding="{Binding Format}"
+                    Header="Format"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Width="200"
+                    Binding="{Binding Model}"
+                    Header="Model"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Binding="{Binding MediaType}"
+                    Header="Media type"
+                    IsReadOnly="True" />
+                <tableView:TableViewTextColumn
+                    Binding="{Binding Size}"
+                    Header="Size"
+                    IsReadOnly="True" />
+                <tableView:TableViewTemplateColumn x:Name="StatusTemplate" Header="Status">
+                    <tableView:TableViewTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <ToggleSwitch
+                                    x:Name="StatusToggle"
+                                    IsOn="{Binding Status, Mode=TwoWay, Converter={StaticResource StatusToIsOnConverter}}"
+                                    OffContent="NORMAL"
+                                    OnContent="HIDDEN"
+                                    Toggled="StatusToggle_OnToggled"
+                                    Visibility="{Binding Status, Converter={StaticResource StatusToTemplateColumnVisibilityConverter}}" />
+                                <TextBlock Text="{Binding Status}" Visibility="{Binding Status, Converter={StaticResource UnknownStatusVisibilityConverter}}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </tableView:TableViewTemplateColumn.CellTemplate>
+                </tableView:TableViewTemplateColumn>
+            </tableView:TableView.Columns>
+        </tableView:TableView>
+    </Grid>
+</Page>
