@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using DevWinUI;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
@@ -28,6 +29,10 @@ namespace UStealth.WinUI
     {
         private Window? _window;
         public Frame RootFrame { get; set; }
+        public new static App Current => (App)Application.Current;
+
+        public IThemeService ThemeService { get; set; }
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -45,6 +50,34 @@ namespace UStealth.WinUI
         {
             _window = new MainWindow();
             _window.Activate();
+            ThemeService = new ThemeService();
+            ThemeService.Initialize(_window);
+            ThemeService.ConfigureBackdrop(BackdropType.Mica);
+            SetApplicationTheme();
+        }
+
+        public void SetApplicationTheme()
+        {
+            var theme = Windows.Storage.ApplicationData.Current.LocalSettings.Values["AppTheme"]?.ToString();
+            if (theme != null)
+            {
+                switch (theme)
+                {
+                    case "Light":
+                        ThemeService.SetElementTheme(ElementTheme.Light);
+                        break;
+                    case "Dark":
+                        ThemeService.SetElementTheme(ElementTheme.Dark);
+                        break;
+                    default:
+                        ThemeService.SetElementTheme(ElementTheme.Default);
+                        break;
+                }
+            }
+            else
+            {
+                ThemeService.SetElementTheme(ElementTheme.Default);
+            }
         }
     }
 }

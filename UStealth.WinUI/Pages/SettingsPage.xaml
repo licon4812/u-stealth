@@ -60,13 +60,15 @@
                                     Text="Select which app theme to display" />
                             </StackPanel>
                             <ComboBox
+                                x:Name="ThemeComboBox"
                                 Grid.Column="2"
                                 Width="100"
                                 HorizontalAlignment="Right"
-                                SelectedIndex="0">
-                                <ComboBoxItem Content="Dark" />
-                                <ComboBoxItem Content="Light" />
-                                <ComboBoxItem Content="System" />
+                                SelectionChanged="OnThemeChanged">
+                                <ComboBoxItem Content="Light" Tag="Light" />
+                                <ComboBoxItem Content="Dark" Tag="Dark" />
+                                <ComboBoxItem Content="System" Tag="Default" />
+
                             </ComboBox>
                         </Grid>
                     </Border>
