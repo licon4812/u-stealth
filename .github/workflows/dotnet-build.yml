@@ -73,7 +73,7 @@ jobs:
       - name: Prepare ZIPs for upload
         run: |
           mkdir -p temp-zips
-          for %f in (UStealth.DriveHelper\bin\Release\**\*.zip) do copy "%f" temp-zips\
+          for %f in (UStealth.DriveHelper\bin\Release\**\*.zip) do copy "%f" temp-zips\\
         shell: cmd
       - name: Upload DriveHelper ZIPs
         uses: actions/upload-artifact@v4
