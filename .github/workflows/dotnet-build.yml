@@ -70,4 +70,8 @@ jobs:
           name: build-output
       - name: Build Artifacts
         run: dotnet run .\\UStealth.ModularPipelines\\UStealth.ModularPipelines.csproj
-      
+      - name: Upload DriveHelper ZIPs
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-zips
+          path: UStealth.DriveHelper\\bin\\Release\\**\\*.zip
