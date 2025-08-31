@@ -15,7 +15,13 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ProgressRing x:Name="ProgressRing" IsActive="False" />
+
+        <StackPanel>
+            <ProgressRing x:Name="ProgressRing" IsActive="False" />
+            <Button HorizontalAlignment="Right" Click="RefreshButton_Click">
+                <FontIcon Glyph="&#xE72C;" />
+            </Button>
+        </StackPanel>
         <tableView:TableView
             x:Name="DrivesTableView"
             Grid.Row="1"

@@ -32,7 +32,10 @@
             SelectionChanged="NavigationView_OnSelectionChanged"
             SelectionFollowsFocus="Enabled">
             <NavigationView.MenuItems>
-                <NavigationViewItem x:Name="Main" Tag="Main">
+                <NavigationViewItem
+                    x:Name="Main"
+                    Content="Drives"
+                    Tag="Main">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xEC4E;" />
                     </NavigationViewItem.Icon>

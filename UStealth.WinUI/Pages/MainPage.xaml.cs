@@ -169,6 +169,7 @@ namespace UStealth.WinUI.Pages
                     await ShowDialog(parts[0], parts.Length > 1 ? parts[1] : "");
                 }
                 IsLoading(false);
+                await LoadDrivesAsync();
             }
             catch (Exception ex)
             {
