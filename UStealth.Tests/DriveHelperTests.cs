@@ -24,7 +24,7 @@ namespace UStealth.Tests
         [Test]
         public async Task ListDrives_IntegrationTest()
         {
-            var drives = InvokeListDrives();
+            var drives = Program.GetDrives();
             await Assert.That(drives).IsNotNull();
             await Assert.That(drives.Count).IsGreaterThan(0);
             foreach (var d in drives)
@@ -36,7 +36,7 @@ namespace UStealth.Tests
         [Test]
         public async Task CannotToggleSystemDrive()
         {
-            var drives = InvokeListDrives();
+            var drives = Program.GetDrives().ToList();
             var systemDrive = drives.Find(d => d.IsSystemDrive);
             await Assert.That(systemDrive).IsNotNull();
             // Simulate the logic that would prevent toggling the system drive
@@ -50,29 +50,6 @@ namespace UStealth.Tests
             }
         }
 
-        private List<Program.DriveInfoDisplay> InvokeListDrives()
-        {
-            var method = typeof(Program).GetMethod("ListDrives", BindingFlags.Static | BindingFlags.NonPublic);
-            var originalOut = Console.Out;
-            using var sw = new System.IO.StringWriter();
-            Console.SetOut(sw);
-            try
-            {
-                method.Invoke(null, null);
-                Console.Out.Flush();
-                var output = sw.ToString();
-                // Find the JSON output (last line)
-                var lines = output.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
-                string json = lines.Length > 0 ? lines[^1] : string.Empty;
-                if (string.IsNullOrWhiteSpace(json)) return [];
-                var drives = JsonSerializer.Deserialize(json, typeof(List<Program.DriveInfoDisplay>), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) as List<Program.DriveInfoDisplay>;
-                return drives ?? [];
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-            }
-        }
 
         private int InvokeToggle(string device)
         {
