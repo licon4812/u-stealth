@@ -18,10 +18,13 @@ namespace UStealth.WinUI
         public Microsoft.UI.Xaml.Media.Imaging.BitmapImage AppIconUri => new(new Uri("ms-appx:///Assets/StoreLogo.png"));
         public  NavigationViewPaneDisplayMode NavigationStyle { get; set; }
 
+        public SizeInt32 DefaultWinUiSize { get; set; }
+
         public MainWindow()
         {
             Current = this;
             InitializeComponent();
+            DefaultWinUiSize = AppWindow.Size;
             ApplySavedWindowSize();
             GetNavigationStyle();
             ExtendsContentIntoTitleBar = true;

@@ -165,10 +165,8 @@ namespace UStealth.WinUI.Pages
         private void ResetSize_OnClick(object sender, RoutedEventArgs e)
         {
             Windows.Storage.ApplicationData.Current.LocalSettings.Values.Remove("WindowSize");
-            var height = MaximumHeight * 0.69;
-            var width = MaximumWidth * 0.75;
-            WindowHeightSlider.Value = height;
-            WindowWidthSlider.Value = width;
+            WindowHeightSlider.Value = MainWindow.Current.DefaultWinUiSize.Height;
+            WindowWidthSlider.Value = MainWindow.Current.DefaultWinUiSize.Width;
         }
     }
 }
