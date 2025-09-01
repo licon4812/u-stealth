@@ -16,7 +16,7 @@ namespace UStealth.WinUI
         public Frame RootFrame { get; set; }
         public new static App Current => (App)Application.Current;
         public IThemeService ThemeService { get; set; }
-        public BackdropType AppBackdrop { get; set; }
+        public BackdropType AppBackdrop { get; set; } = BackdropType.Mica;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
