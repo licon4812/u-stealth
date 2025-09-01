@@ -121,12 +121,13 @@
                         </devWinUi:SettingsCard.HeaderIcon>
 
                         <Slider
+                            x:Name="WindowHeightSlider"
                             Width="200"
                             Maximum="{x:Bind MaximumHeight}"
                             Minimum="500"
                             SmallChange="10"
                             StepFrequency="10"
-                            Value="790" />
+                            ValueChanged="WindowHeightSlider_ValueChanged" />
                     </devWinUi:SettingsCard>
                     <!--  Width Card  -->
                     <devWinUi:SettingsCard
@@ -140,12 +141,13 @@
                         </devWinUi:SettingsCard.HeaderIcon>
 
                         <Slider
+                            x:Name="WindowWidthSlider"
                             Width="200"
                             Maximum="{x:Bind MaximumWidth}"
                             Minimum="500"
                             SmallChange="10"
                             StepFrequency="10"
-                            Value="790" />
+                            ValueChanged="WindowWidthSlider_ValueChanged" />
                     </devWinUi:SettingsCard>
                 </devWinUi:SettingsExpander.Items>
             </devWinUi:SettingsExpander>

@@ -2,6 +2,7 @@ using DevWinUI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.Windows.Storage;
 using System;
 using System.Collections.Generic;
@@ -22,18 +23,14 @@ namespace UStealth.WinUI.Pages
     public sealed partial class SettingsPage : Page
     {
         private ComboBox _themeComboBox;
-        private double MaximumHeight { get; set; } = GetScreenResolution().Height;
-
-        private double MaximumWidth { get; set; } = GetScreenResolution().Width;
-
-
+        private double MaximumHeight { get; } = GetScreenResolution().Height;
+        private double MaximumWidth { get;} = GetScreenResolution().Width;
 
         public SettingsPage()
         {
             InitializeComponent();
             Page_Loaded();
         }
-
 
         private void Page_Loaded()
         {
@@ -57,6 +54,10 @@ namespace UStealth.WinUI.Pages
                 BackdropType.Transparent => "Transparent",
                 _ => "Mica"
             };
+
+            
+            WindowWidthSlider.Value = MainWindow.Current.AppWindow.Size.Width;
+            WindowHeightSlider.Value = MainWindow.Current.AppWindow.Size.Height;
         }
 
 
@@ -133,6 +134,26 @@ namespace UStealth.WinUI.Pages
             {
                 await ShowDialog("Error", ex.Message);
             }
+        }
+
+        private void WindowHeightSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            SaveWindowSize();
+        }
+
+        private void WindowWidthSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            SaveWindowSize();
+        }
+
+        private void SaveWindowSize()
+        {
+            if (WindowWidthSlider == null || WindowHeightSlider == null)
+                return;
+
+            var width = (int)WindowWidthSlider.Value;
+            var height = (int)WindowHeightSlider.Value;
+            Windows.Storage.ApplicationData.Current.LocalSettings.Values["WindowSize"] = $"{width},{height}";
         }
 
         private static RectInt32 GetScreenResolution()

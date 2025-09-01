@@ -4,6 +4,8 @@ using Microsoft.UI.Xaml.Navigation;
 using System;
 using DevWinUI;
 using UStealth.WinUI.Pages;
+using Microsoft.UI.Windowing;
+using Windows.Graphics;
 
 namespace UStealth.WinUI
 {
@@ -20,6 +22,7 @@ namespace UStealth.WinUI
         {
             Current = this;
             InitializeComponent();
+            ApplySavedWindowSize();
             GetNavigationStyle();
             ExtendsContentIntoTitleBar = true;
             AppIcon.ImageSource = AppIconUri;
@@ -76,6 +79,17 @@ namespace UStealth.WinUI
                 "Auto" => NavigationViewPaneDisplayMode.Auto,
                 _ => NavigationViewPaneDisplayMode.Top
             };
+        }
+
+        private void ApplySavedWindowSize()
+        {
+            var sizeString = Windows.Storage.ApplicationData.Current.LocalSettings.Values["WindowSize"] as string;
+            if (string.IsNullOrEmpty(sizeString)) return;
+            var parts = sizeString.Split(',');
+            if (parts.Length == 2 && int.TryParse(parts[0], out int width) && int.TryParse(parts[1], out int height))
+            {
+                this.AppWindow.Resize(new SizeInt32(width, height));
+            }
         }
     }
 }
