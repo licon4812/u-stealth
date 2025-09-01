@@ -127,7 +127,8 @@
                             Minimum="500"
                             SmallChange="10"
                             StepFrequency="10"
-                            ValueChanged="WindowHeightSlider_ValueChanged" />
+                            ValueChanged="WindowHeightSlider_ValueChanged"
+                            Value="{x:Bind AppHeight}" />
                     </devWinUi:SettingsCard>
                     <!--  Width Card  -->
                     <devWinUi:SettingsCard
@@ -147,7 +148,8 @@
                             Minimum="500"
                             SmallChange="10"
                             StepFrequency="10"
-                            ValueChanged="WindowWidthSlider_ValueChanged" />
+                            ValueChanged="WindowWidthSlider_ValueChanged"
+                            Value="{x:Bind AppWidth}" />
                     </devWinUi:SettingsCard>
                 </devWinUi:SettingsExpander.Items>
             </devWinUi:SettingsExpander>

@@ -25,6 +25,8 @@ namespace UStealth.WinUI.Pages
         private ComboBox _themeComboBox;
         private double MaximumHeight { get; } = GetScreenResolution().Height;
         private double MaximumWidth { get;} = GetScreenResolution().Width;
+        private double AppHeight { get; set; } = MainWindow.Current!.AppWindow.Size.Height;
+        private double AppWidth { get; set; } = MainWindow.Current!.AppWindow.Size.Width;
 
         public SettingsPage()
         {
@@ -54,10 +56,6 @@ namespace UStealth.WinUI.Pages
                 BackdropType.Transparent => "Transparent",
                 _ => "Mica"
             };
-
-            
-            WindowWidthSlider.Value = MainWindow.Current.AppWindow.Size.Width;
-            WindowHeightSlider.Value = MainWindow.Current.AppWindow.Size.Height;
         }
 
 
@@ -154,6 +152,7 @@ namespace UStealth.WinUI.Pages
             var width = (int)WindowWidthSlider.Value;
             var height = (int)WindowHeightSlider.Value;
             Windows.Storage.ApplicationData.Current.LocalSettings.Values["WindowSize"] = $"{width},{height}";
+            MainWindow.Current!.AppWindow.Resize(new SizeInt32(width,height));
         }
 
         private static RectInt32 GetScreenResolution()
