@@ -108,6 +108,7 @@
                 Background="Transparent"
                 Description="Settings that modify the window behaviour of the app"
                 Header="Windowing">
+                <Button Content="Reset to Default" Click="ResetSize_OnClick" />
                 <devWinUi:SettingsExpander.Items>
                     <!--  Height Card  -->
                     <devWinUi:SettingsCard
