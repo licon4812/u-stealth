@@ -1,10 +1,15 @@
-using System;
+using DevWinUI;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.Windows.Storage;
+using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using DevWinUI;
-using Microsoft.UI.Xaml;
-using Microsoft.Windows.Storage;
+using Windows.Foundation;
+using Windows.Graphics;
 //using Microsoft.UI.Xaml;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -18,13 +23,16 @@ namespace UStealth.WinUI.Pages
     public sealed partial class SettingsPage : Page
     {
         private ComboBox _themeComboBox;
+        private double MaximumHeight { get; } = GetScreenResolution().Height;
+        private double MaximumWidth { get;} = GetScreenResolution().Width;
+        private double AppHeight { get; set; } = MainWindow.Current!.AppWindow.Size.Height;
+        private double AppWidth { get; set; } = MainWindow.Current!.AppWindow.Size.Width;
 
         public SettingsPage()
         {
             InitializeComponent();
             Page_Loaded();
         }
-
 
         private void Page_Loaded()
         {
@@ -124,6 +132,41 @@ namespace UStealth.WinUI.Pages
             {
                 await ShowDialog("Error", ex.Message);
             }
+        }
+
+        private void WindowHeightSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            SaveWindowSize();
+        }
+
+        private void WindowWidthSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            SaveWindowSize();
+        }
+
+        private void SaveWindowSize()
+        {
+            if (WindowWidthSlider == null || WindowHeightSlider == null)
+                return;
+
+            var width = (int)WindowWidthSlider.Value;
+            var height = (int)WindowHeightSlider.Value;
+            Windows.Storage.ApplicationData.Current.LocalSettings.Values["WindowSize"] = $"{width},{height}";
+            MainWindow.Current!.AppWindow.Resize(new SizeInt32(width,height));
+        }
+
+        private static RectInt32 GetScreenResolution()
+        {
+            var appWindow = MainWindow.Current?.AppWindow;
+            var displayArea = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.Primary);
+            return displayArea.OuterBounds; // Use Bounds for full screen size
+        }
+
+        private void ResetSize_OnClick(object sender, RoutedEventArgs e)
+        {
+            Windows.Storage.ApplicationData.Current.LocalSettings.Values.Remove("WindowSize");
+            WindowHeightSlider.Value = MainWindow.Current.DefaultWinUiSize.Height;
+            WindowWidthSlider.Value = MainWindow.Current.DefaultWinUiSize.Width;
         }
     }
 }

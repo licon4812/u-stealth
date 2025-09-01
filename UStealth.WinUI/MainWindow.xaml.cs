@@ -4,6 +4,8 @@ using Microsoft.UI.Xaml.Navigation;
 using System;
 using DevWinUI;
 using UStealth.WinUI.Pages;
+using Microsoft.UI.Windowing;
+using Windows.Graphics;
 
 namespace UStealth.WinUI
 {
@@ -16,10 +18,14 @@ namespace UStealth.WinUI
         public Microsoft.UI.Xaml.Media.Imaging.BitmapImage AppIconUri => new(new Uri("ms-appx:///Assets/StoreLogo.png"));
         public  NavigationViewPaneDisplayMode NavigationStyle { get; set; }
 
+        public SizeInt32 DefaultWinUiSize { get; set; }
+
         public MainWindow()
         {
             Current = this;
             InitializeComponent();
+            DefaultWinUiSize = AppWindow.Size;
+            ApplySavedWindowSize();
             GetNavigationStyle();
             ExtendsContentIntoTitleBar = true;
             AppIcon.ImageSource = AppIconUri;
@@ -76,6 +82,17 @@ namespace UStealth.WinUI
                 "Auto" => NavigationViewPaneDisplayMode.Auto,
                 _ => NavigationViewPaneDisplayMode.Top
             };
+        }
+
+        private void ApplySavedWindowSize()
+        {
+            var sizeString = Windows.Storage.ApplicationData.Current.LocalSettings.Values["WindowSize"] as string;
+            if (string.IsNullOrEmpty(sizeString)) return;
+            var parts = sizeString.Split(',');
+            if (parts.Length == 2 && int.TryParse(parts[0], out int width) && int.TryParse(parts[1], out int height))
+            {
+                this.AppWindow.Resize(new SizeInt32(width, height));
+            }
         }
     }
 }

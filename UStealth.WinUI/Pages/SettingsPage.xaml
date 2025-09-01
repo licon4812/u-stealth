@@ -22,87 +22,140 @@
             FontSize="36"
             FontWeight="Bold"
             Text="Settings" />
-        <StackPanel
-            Grid.Row="1"
-            Margin="0,32,0,0"
-            Spacing="32">
-            <!--  Appearance & behavior section  -->
-            <devWinUi:SettingsExpander
-                Margin="16"
-                Background="Transparent"
-                Description="Settings that modify the appearance and behaviour of the app"
-                Header="Appearance &amp; behavior"
-                IsExpanded="true">
-                <devWinUi:SettingsExpander.Items>
-                    <!--  App theme Card  -->
-                    <devWinUi:SettingsCard
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        CornerRadius="8"
-                        Description="Select which app theme to display"
-                        Header="App Theme"
-                        IsClickEnabled="False">
-                        <devWinUi:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE790;" />
-                        </devWinUi:SettingsCard.HeaderIcon>
-                        <ComboBox
-                            x:Name="ThemeComboBox"
-                            Width="100"
-                            HorizontalAlignment="Right"
-                            SelectionChanged="OnThemeChanged">
-                            <ComboBoxItem Content="Light" Tag="Light" />
-                            <ComboBoxItem Content="Dark" Tag="Dark" />
-                            <ComboBoxItem Content="System" Tag="Default" />
-                        </ComboBox>
-                    </devWinUi:SettingsCard>
-                    <!--  Backdrop Card  -->
-                    <devWinUi:SettingsCard
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        CornerRadius="8"
-                        Description="Select which app theme to display"
-                        Header="App Backdrop"
-                        IsClickEnabled="False">
-                        <devWinUi:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xEF1F;" />
-                        </devWinUi:SettingsCard.HeaderIcon>
-                        <ComboBox
-                            x:Name="BackdropComboBox"
-                            Width="100"
-                            HorizontalAlignment="Right"
-                            SelectedValuePath="Tag"
-                            SelectionChanged="BackdropComboBox_OnSelectionChanged">
-                            <ComboBoxItem Content="None" Tag="None" />
-                            <ComboBoxItem Content="Mica" Tag="Mica" />
-                            <ComboBoxItem Content="Mica Alt" Tag="MicaAlt" />
-                            <ComboBoxItem Content="Acrylic" Tag="Acrylic" />
-                            <ComboBoxItem Content="Acrylic Thin" Tag="AcrylicThin" />
-                            <ComboBoxItem Content="Transparent" Tag="Transparent" />
-                        </ComboBox>
-                    </devWinUi:SettingsCard>
-                    <!--  Navigation Style Card  -->
-                    <devWinUi:SettingsCard
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        CornerRadius="8"
-                        Description="Choose how navigation is displayed"
-                        Header="Navigation Style"
-                        IsClickEnabled="False">
-                        <devWinUi:SettingsCard.HeaderIcon>
-                            <FontIcon FontFamily="Segoe MDL2 Assets " Glyph="&#xE8A7;" />
-                        </devWinUi:SettingsCard.HeaderIcon>
-                        <ComboBox
-                            x:Name="NavigationStyleComboBox"
-                            Width="100"
-                            HorizontalAlignment="Right"
-                            SelectedValuePath="Tag"
-                            SelectionChanged="NavigationStyleComboBox_OnSelectionChanged">
-                            <ComboBoxItem Content="Top" Tag="Top" />
-                            <ComboBoxItem Content="Left" Tag="Left" />
-                            <ComboBoxItem Content="Left Compact" Tag="Left Compact" />
-                            <ComboBoxItem Content="Left Minimal" Tag="Left Minimal" />
-                            <ComboBoxItem Content="Left Auto" Tag="Left Auto" />
-                        </ComboBox>
-                    </devWinUi:SettingsCard>
-                </devWinUi:SettingsExpander.Items>
-            </devWinUi:SettingsExpander>
-        </StackPanel>
+        <ScrollView Grid.Row="1">
+            <StackPanel
+                Grid.Row="1"
+                Margin="0,32,0,0"
+                Spacing="32">
+                <!--  Appearance & behavior section  -->
+                <devWinUi:SettingsExpander
+                    Margin="16,0"
+                    Background="Transparent"
+                    Description="Settings that modify the appearance and behaviour of the app"
+                    Header="Appearance &amp; behavior">
+                    <devWinUi:SettingsExpander.Items>
+                        <!--  App theme Card  -->
+                        <devWinUi:SettingsCard
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="8"
+                            Description="Select which app theme to display"
+                            Header="App Theme"
+                            IsClickEnabled="False">
+                            <devWinUi:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xE790;" />
+                            </devWinUi:SettingsCard.HeaderIcon>
+                            <ComboBox
+                                x:Name="ThemeComboBox"
+                                Width="100"
+                                HorizontalAlignment="Right"
+                                SelectionChanged="OnThemeChanged">
+                                <ComboBoxItem Content="Light" Tag="Light" />
+                                <ComboBoxItem Content="Dark" Tag="Dark" />
+                                <ComboBoxItem Content="System" Tag="Default" />
+                            </ComboBox>
+                        </devWinUi:SettingsCard>
+                        <!--  Backdrop Card  -->
+                        <devWinUi:SettingsCard
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="8"
+                            Description="Select which app theme to display"
+                            Header="App Backdrop"
+                            IsClickEnabled="False">
+                            <devWinUi:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xEF1F;" />
+                            </devWinUi:SettingsCard.HeaderIcon>
+                            <ComboBox
+                                x:Name="BackdropComboBox"
+                                Width="100"
+                                HorizontalAlignment="Right"
+                                SelectedValuePath="Tag"
+                                SelectionChanged="BackdropComboBox_OnSelectionChanged">
+                                <ComboBoxItem Content="None" Tag="None" />
+                                <ComboBoxItem Content="Mica" Tag="Mica" />
+                                <ComboBoxItem Content="Mica Alt" Tag="MicaAlt" />
+                                <ComboBoxItem Content="Acrylic" Tag="Acrylic" />
+                                <ComboBoxItem Content="Acrylic Thin" Tag="AcrylicThin" />
+                                <ComboBoxItem Content="Transparent" Tag="Transparent" />
+                            </ComboBox>
+                        </devWinUi:SettingsCard>
+                        <!--  Navigation Style Card  -->
+                        <devWinUi:SettingsCard
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="8"
+                            Description="Choose how navigation is displayed"
+                            Header="Navigation Style"
+                            IsClickEnabled="False">
+                            <devWinUi:SettingsCard.HeaderIcon>
+                                <FontIcon FontFamily="Segoe MDL2 Assets " Glyph="&#xE8A7;" />
+                            </devWinUi:SettingsCard.HeaderIcon>
+                            <ComboBox
+                                x:Name="NavigationStyleComboBox"
+                                Width="100"
+                                HorizontalAlignment="Right"
+                                SelectedValuePath="Tag"
+                                SelectionChanged="NavigationStyleComboBox_OnSelectionChanged">
+                                <ComboBoxItem Content="Top" Tag="Top" />
+                                <ComboBoxItem Content="Left" Tag="Left" />
+                                <ComboBoxItem Content="Left Compact" Tag="Left Compact" />
+                                <ComboBoxItem Content="Left Minimal" Tag="Left Minimal" />
+                                <ComboBoxItem Content="Left Auto" Tag="Left Auto" />
+                            </ComboBox>
+                        </devWinUi:SettingsCard>
+                    </devWinUi:SettingsExpander.Items>
+                </devWinUi:SettingsExpander>
+                <!--  Windowing section  -->
+                <devWinUi:SettingsExpander
+                    Margin="16,0"
+                    Background="Transparent"
+                    Description="Settings that modify the window behaviour of the app"
+                    Header="Windowing">
+                    <Button Click="ResetSize_OnClick" Content="Reset to Default" />
+                    <devWinUi:SettingsExpander.Items>
+                        <!--  Height Card  -->
+                        <devWinUi:SettingsCard
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="8"
+                            Description="Customize the default Window Height"
+                            Header="Window Height"
+                            IsClickEnabled="False">
+                            <devWinUi:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xE7EB;" />
+                            </devWinUi:SettingsCard.HeaderIcon>
+
+                            <Slider
+                                x:Name="WindowHeightSlider"
+                                Width="200"
+                                Maximum="{x:Bind MaximumHeight}"
+                                Minimum="500"
+                                SmallChange="10"
+                                StepFrequency="10"
+                                ValueChanged="WindowHeightSlider_ValueChanged"
+                                Value="{x:Bind AppHeight}" />
+                        </devWinUi:SettingsCard>
+                        <!--  Width Card  -->
+                        <devWinUi:SettingsCard
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="8"
+                            Description="Customize the default Window Width"
+                            Header="Window Width"
+                            IsClickEnabled="False">
+                            <devWinUi:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xEA62;" />
+                            </devWinUi:SettingsCard.HeaderIcon>
+
+                            <Slider
+                                x:Name="WindowWidthSlider"
+                                Width="200"
+                                Maximum="{x:Bind MaximumWidth}"
+                                Minimum="500"
+                                SmallChange="10"
+                                StepFrequency="10"
+                                ValueChanged="WindowWidthSlider_ValueChanged"
+                                Value="{x:Bind AppWidth}" />
+                        </devWinUi:SettingsCard>
+                    </devWinUi:SettingsExpander.Items>
+                </devWinUi:SettingsExpander>
+            </StackPanel>
+        </ScrollView>
     </Grid>
 </Page>
