@@ -159,13 +159,13 @@ namespace UStealth.WinUI.Pages
         {
             var appWindow = MainWindow.Current?.AppWindow;
             var displayArea = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.Primary);
-            return displayArea.WorkArea; // or displayArea.Bounds for the full screen
+            return displayArea.OuterBounds; // Use Bounds for full screen size
         }
 
         private void ResetSize_OnClick(object sender, RoutedEventArgs e)
         {
             Windows.Storage.ApplicationData.Current.LocalSettings.Values.Remove("WindowSize");
-            var height = MaximumHeight * 0.70;
+            var height = MaximumHeight * 0.69;
             var width = MaximumWidth * 0.75;
             WindowHeightSlider.Value = height;
             WindowWidthSlider.Value = width;
