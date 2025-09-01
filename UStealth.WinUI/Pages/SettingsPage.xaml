@@ -28,11 +28,10 @@
             Spacing="32">
             <!--  Appearance & behavior section  -->
             <devWinUi:SettingsExpander
-                Margin="16"
+                Margin="16,0"
                 Background="Transparent"
                 Description="Settings that modify the appearance and behaviour of the app"
-                Header="Appearance &amp; behavior"
-                IsExpanded="true">
+                Header="Appearance &amp; behavior">
                 <devWinUi:SettingsExpander.Items>
                     <!--  App theme Card  -->
                     <devWinUi:SettingsCard
@@ -100,6 +99,53 @@
                             <ComboBoxItem Content="Left Minimal" Tag="Left Minimal" />
                             <ComboBoxItem Content="Left Auto" Tag="Left Auto" />
                         </ComboBox>
+                    </devWinUi:SettingsCard>
+                </devWinUi:SettingsExpander.Items>
+            </devWinUi:SettingsExpander>
+            <!--  Windowing section  -->
+            <devWinUi:SettingsExpander
+                Margin="16,0"
+                Background="Transparent"
+                Description="Settings that modify the window behaviour of the app"
+                Header="Windowing">
+                <devWinUi:SettingsExpander.Items>
+                    <!--  Height Card  -->
+                    <devWinUi:SettingsCard
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="8"
+                        Description="Customize the default Window Height"
+                        Header="Window Height"
+                        IsClickEnabled="False">
+                        <devWinUi:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE7EB;" />
+                        </devWinUi:SettingsCard.HeaderIcon>
+
+                        <Slider
+                            Width="200"
+                            Maximum="{x:Bind MaximumHeight}"
+                            Minimum="500"
+                            SmallChange="10"
+                            StepFrequency="10"
+                            Value="790" />
+                    </devWinUi:SettingsCard>
+                    <!--  Width Card  -->
+                    <devWinUi:SettingsCard
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="8"
+                        Description="Customize the default Window Width"
+                        Header="Window Width"
+                        IsClickEnabled="False">
+                        <devWinUi:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xEA62;" />
+                        </devWinUi:SettingsCard.HeaderIcon>
+
+                        <Slider
+                            Width="200"
+                            Maximum="{x:Bind MaximumWidth}"
+                            Minimum="500"
+                            SmallChange="10"
+                            StepFrequency="10"
+                            Value="790" />
                     </devWinUi:SettingsCard>
                 </devWinUi:SettingsExpander.Items>
             </devWinUi:SettingsExpander>

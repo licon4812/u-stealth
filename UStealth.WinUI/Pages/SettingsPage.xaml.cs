@@ -1,10 +1,14 @@
-using System;
+using DevWinUI;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Windows.Storage;
+using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using DevWinUI;
-using Microsoft.UI.Xaml;
-using Microsoft.Windows.Storage;
+using Windows.Foundation;
+using Windows.Graphics;
 //using Microsoft.UI.Xaml;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -18,6 +22,11 @@ namespace UStealth.WinUI.Pages
     public sealed partial class SettingsPage : Page
     {
         private ComboBox _themeComboBox;
+        private double MaximumHeight { get; set; } = GetScreenResolution().Height;
+
+        private double MaximumWidth { get; set; } = GetScreenResolution().Width;
+
+
 
         public SettingsPage()
         {
@@ -124,6 +133,13 @@ namespace UStealth.WinUI.Pages
             {
                 await ShowDialog("Error", ex.Message);
             }
+        }
+
+        private static RectInt32 GetScreenResolution()
+        {
+            var appWindow = MainWindow.Current?.AppWindow;
+            var displayArea = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.Primary);
+            return displayArea.WorkArea; // or displayArea.Bounds for the full screen
         }
     }
 }
