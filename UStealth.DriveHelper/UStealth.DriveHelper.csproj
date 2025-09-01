@@ -17,6 +17,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net9.0-windows' ">
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+    <SelfContained>true</SelfContained>
   </PropertyGroup>
   <ItemGroup Condition="'$(IsPublish)' == 'true' and '$(TargetFramework)' == 'net9.0-windows'">
     <Compile Remove="Linux.cs" />

@@ -8,15 +8,15 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="4942d94d-7731-4cce-9bce-5e92cb29d4b4"
-    Publisher="CN=jalic"
+    Name="23610AlickolliSoftware.U-Stealth"
+    Publisher="CN=5CECD841-CF4E-45AF-B443-573F4A3614A0"
     Version="1.0.3.0" />
 
-  <mp:PhoneIdentity PhoneProductId="4942d94d-7731-4cce-9bce-5e92cb29d4b4" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="c7e5a6da-d685-4804-8078-1ada8bd90a16" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>UStealth.WinUI</DisplayName>
-    <PublisherDisplayName>jalic</PublisherDisplayName>
+    <DisplayName>U-Stealth</DisplayName>
+    <PublisherDisplayName>Alickolli Software</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
