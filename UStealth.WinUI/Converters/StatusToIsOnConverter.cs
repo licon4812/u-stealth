@@ -4,7 +4,7 @@ using System;
 
 namespace UStealth.WinUI.Converters
 {
-    public class StatusToIsOnConverter : IValueConverter
+    public partial class StatusToIsOnConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
