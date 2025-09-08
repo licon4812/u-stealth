@@ -1,30 +1,14 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
-using System.Threading.Tasks;
-using Windows.Foundation;
-using System.Diagnostics;
-using System.Security.Principal;
-using System.Linq;
-using System.Collections.ObjectModel;
+using UStealth.WinUI.Models;
+using WinUI.TableView;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -33,14 +17,16 @@ namespace UStealth.WinUI.Pages
 {
     public sealed partial class MainPage : Page
     {
-        public ObservableCollection<Models.DriveInfoModel> Drives { get; } = new();
+        public ObservableCollection<Models.DriveInfoModel> Drives { get; set; } = [];
         public Models.DriveInfoModel SelectedDrive { get; set; }
         private readonly DriveManager _driveManager = new();
+        private CancellationTokenSource? _token;
 
         public MainPage()
         {
             InitializeComponent();
             this.Loaded += MainPage_Loaded;
+            DrivesTableView.FilterDescriptions.Add(new FilterDescription(string.Empty, Filter));
         }
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
@@ -244,5 +230,48 @@ namespace UStealth.WinUI.Pages
                 return $"Failed to launch helper: {ex.Message}|Error";
             }
         }
+
+        private async void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (_token is not null)
+            {
+                await _token.CancelAsync();
+            }
+
+            _token = new CancellationTokenSource();
+            await RefreshFilter(_token.Token);
+        }
+
+        private bool Filter(object? item)
+        {
+            if (string.IsNullOrWhiteSpace(FilterText.Text)) return true;
+            if (item is not DriveInfoModel model) return false;
+
+            return (model.DriveLetter?.Contains(FilterText.Text, StringComparison.OrdinalIgnoreCase) == true) ||
+                   (model.Interface?.Contains(FilterText.Text, StringComparison.OrdinalIgnoreCase) == true) ||
+                   (model.Model?.Contains(FilterText.Text, StringComparison.OrdinalIgnoreCase) == true) ||
+                   (model.MediaType?.Contains(FilterText.Text, StringComparison.OrdinalIgnoreCase) == true) ||
+                   (model.Size?.Contains(FilterText.Text, StringComparison.OrdinalIgnoreCase) == true) ||
+                   (model.Status?.Contains(FilterText.Text, StringComparison.OrdinalIgnoreCase) == true) ||
+                   (model.DeviceID?.Contains(FilterText.Text, StringComparison.OrdinalIgnoreCase) == true) ||
+                   (model.VolumeLabel?.Contains(FilterText.Text, StringComparison.OrdinalIgnoreCase) == true) ||
+                   (model.Format?.Contains(FilterText.Text, StringComparison.OrdinalIgnoreCase) == true);
+        }
+
+        private async Task RefreshFilter(CancellationToken token)
+        {
+            try
+            {
+                await Task.Delay(200, token);
+            }
+            catch
+            {
+                return;
+            }
+
+            _token = null;
+            DrivesTableView.RefreshFilter();
+        }
+
     }
 }
