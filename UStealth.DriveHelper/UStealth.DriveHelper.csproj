@@ -12,7 +12,6 @@
     <Version>1.0.3.0</Version>
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
-    <PublishAot>True</PublishAot>
     <PublishWmiLightStaticallyLinked>true</PublishWmiLightStaticallyLinked>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net9.0-windows' ">
