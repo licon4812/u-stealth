@@ -34,6 +34,11 @@
                     Width="600"
                     PlaceholderText="Search by any value from any of the columns"
                     TextChanged="OnSearchTextChanged" />
+                <CheckBox
+                    Checked="HideDrivesCheckBox_OnChecked"
+                    Content="Hide Fixed Drives"
+                    IsChecked="{x:Bind AreFixedDrivesHidden}"
+                    Unchecked="HideDrivesCheckBox_UnChecked" />
             </StackPanel>
             <tableView:TableView
                 x:Name="DrivesTableView"

@@ -19,6 +19,8 @@ namespace UStealth.WinUI.Pages
     {
         public ObservableCollection<Models.DriveInfoModel> Drives { get; set; } = [];
         public Models.DriveInfoModel SelectedDrive { get; set; }
+        public bool AreFixedDrivesHidden { get; set; } = GetFixedDriveFilterSetting();
+
         private readonly DriveManager _driveManager = new();
         private CancellationTokenSource? _token;
 
@@ -273,5 +275,55 @@ namespace UStealth.WinUI.Pages
             DrivesTableView.RefreshFilter();
         }
 
+        private void HideDrivesCheckBox_OnChecked(object sender, RoutedEventArgs e)
+        {
+            HideFixedDrives(true);
+        }
+
+        private void HideDrivesCheckBox_UnChecked(object sender, RoutedEventArgs e)
+        {
+            HideFixedDrives(false);
+        }
+
+        private void HideFixedDrives(bool hide)
+        {
+            AreFixedDrivesHidden = hide;
+
+            // Remove any previous filter for "Fixed" drives
+            for (int i = DrivesTableView.FilterDescriptions.Count - 1; i >= 0; i--)
+            {
+                var fd = DrivesTableView.FilterDescriptions[i];
+                if (fd.PropertyName == "MediaType")
+                {
+                    DrivesTableView.FilterDescriptions.RemoveAt(i);
+                }
+            }
+
+            if (hide)
+            {
+                // Add a filter that hides drives with MediaType containing "Fixed"
+                DrivesTableView.FilterDescriptions.Add(new FilterDescription(
+                    "MediaType",
+                    item =>
+                    {
+                        if (item is DriveInfoModel model)
+                            return !model.MediaType?.Contains("Fixed", StringComparison.OrdinalIgnoreCase) == true;
+                        return true;
+                    }));
+            }
+            DrivesTableView.RefreshFilter();
+            SaveFixedDriveFilterSetting(hide);
+        }
+
+        private void SaveFixedDriveFilterSetting(bool hide)
+        {
+            Windows.Storage.ApplicationData.Current.LocalSettings.Values["Hide Fixed Drives"] = hide;
+        }
+
+        private static bool GetFixedDriveFilterSetting()
+        {
+            return Windows.Storage.ApplicationData.Current.LocalSettings.Values["Hide Fixed Drives"] is bool &&
+                   (bool)Windows.Storage.ApplicationData.Current.LocalSettings.Values["Hide Fixed Drives"];
+        }
     }
 }
