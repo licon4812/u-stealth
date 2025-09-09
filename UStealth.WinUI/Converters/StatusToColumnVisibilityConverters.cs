@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Data;
 
 namespace UStealth.WinUI.Converters
 {
-    public class StatusToTemplateColumnVisibilityConverter : IValueConverter
+    public partial class StatusToTemplateColumnVisibilityConverter : IValueConverter
     {
         public object Convert(object value, System.Type targetType, object parameter, string language)
         {
@@ -17,7 +17,7 @@ namespace UStealth.WinUI.Converters
         }
     }
 
-    public class StatusToTextColumnVisibilityConverter : IValueConverter
+    public partial class StatusToTextColumnVisibilityConverter : IValueConverter
     {
         public object Convert(object value, System.Type targetType, object parameter, string language)
         {

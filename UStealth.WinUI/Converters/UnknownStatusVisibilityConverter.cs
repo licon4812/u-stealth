@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Data;
 
 namespace UStealth.WinUI.Converters
 {
-    public class UnknownStatusVisibilityConverter : IValueConverter
+    public partial class UnknownStatusVisibilityConverter : IValueConverter
     {
         public object Convert(object value, System.Type targetType, object parameter, string language)
         {
