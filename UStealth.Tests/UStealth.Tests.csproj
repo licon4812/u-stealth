@@ -6,6 +6,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net9.0-windows;net9.0</TargetFrameworks>
     <Platforms>x86;x64;ARM64;AnyCPU</Platforms>
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
 
   <ItemGroup>
