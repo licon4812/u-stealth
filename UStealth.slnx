@@ -9,6 +9,7 @@
   <Folder Name="/Solution Items/">
     <File Path="README.md" />
   </Folder>
+  <Project Path="UStealth.Benchmarks/UStealth.Benchmarks.csproj" Id="f7f89dc6-c544-43ad-a470-472c4348ea2b" />
   <Project Path="UStealth.DriveHelper/UStealth.DriveHelper.csproj">
     <Platform Solution="*|x64" Project="x64" />
     <Platform Solution="*|x86" Project="x86" />

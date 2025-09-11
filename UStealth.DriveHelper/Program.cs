@@ -5,9 +5,11 @@ using System.Diagnostics;
 using System.Net.Mime;
 using Spectre.Console;
 using System.Text.Json.Serialization;
+using UStealth.DriveHelper.Models;
 
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("UStealth.Tests")]
+[assembly:System.Runtime.CompilerServices.InternalsVisibleTo("UStealth.Benchmarks")]
 namespace UStealth.DriveHelper
 {
     internal class Program
@@ -287,24 +289,8 @@ namespace UStealth.DriveHelper
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             return version != null ? version.ToString() : "unknown";
         }
-
-        // Replace the use of 'dynamic' with a strongly-typed class for drive info
-        // Make DriveInfoDisplay public so it can be used by the source generator
-        public class DriveInfoDisplay
-        {
-            public bool IsSystemDrive { get; set; }
-            public string DeviceID { get; set; }
-            public string Model { get; set; }
-            public string Interface { get; set; }
-            public string MediaType { get; set; }
-            public string Size { get; set; }
-            public string VolumeLabel { get; set; }
-            public string Format { get; set; }
-            public string DriveLetter { get; set; }
-            public string Status { get; set; }
-        }
     }
 
-    [JsonSerializable(typeof(List<Program.DriveInfoDisplay>))]
+    [JsonSerializable(typeof(List<DriveInfoDisplay>))]
     internal partial class DriveInfoDisplayJsonContext : JsonSerializerContext { }
 }

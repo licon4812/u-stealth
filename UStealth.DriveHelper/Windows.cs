@@ -9,6 +9,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using UStealth.DriveHelper.Models;
 using WmiLight;
 using static UStealth.DriveHelper.Program;
 
