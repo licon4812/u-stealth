@@ -29,16 +29,11 @@ namespace UStealth
         {
             try
             {
-                using (RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"))
+                using RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize");
+                object value = key?.GetValue("AppsUseLightTheme");
+                if (value is int intValue)
                 {
-                    if (key != null)
-                    {
-                        object value = key.GetValue("AppsUseLightTheme");
-                        if (value is int intValue)
-                        {
-                            return intValue == 0; // 0 = dark mode, 1 = light mode
-                        }
-                    }
+                    return intValue == 0; // 0 = dark mode, 1 = light mode
                 }
             }
             catch { }
