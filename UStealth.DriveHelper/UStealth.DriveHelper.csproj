@@ -9,7 +9,7 @@
     <RootNamespace>UStealth.DriveHelper</RootNamespace>
     <Platforms>x86;x64;ARM64;AnyCPU</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
-    <Version>1.0.3.0</Version>
+    <Version>1.0.4.0</Version>
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
     <PublishWmiLightStaticallyLinked>true</PublishWmiLightStaticallyLinked>
