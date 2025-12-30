@@ -31,5 +31,4 @@
     <Platform Solution="*|x86" Project="x86" />
     <Deploy />
   </Project>
-  <Project Path="WinUI.TableView/WinUI.TableView.csproj" />
 </Solution>
