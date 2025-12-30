@@ -9,6 +9,9 @@
   <Folder Name="/Solution Items/">
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/workflows/">
+    <File Path=".github/workflows/dotnet-build.yml" />
+  </Folder>
   <Project Path="UStealth.DriveHelper/UStealth.DriveHelper.csproj">
     <Platform Solution="*|x64" Project="x64" />
     <Platform Solution="*|x86" Project="x86" />

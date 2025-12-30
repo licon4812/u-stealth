@@ -4,7 +4,7 @@
     <!--When packaging with WAP you need to comment out TargetFrameworks. And Uncomment TargetFramework.
       This is due to WAP not being able to handle the TargetFrameworks Flag
     -->
-    <TargetFrameworks>net9.0-windows;net9.0</TargetFrameworks>
+    <TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
     <!--<TargetFramework>net9.0-windows</TargetFramework>-->
     <RootNamespace>UStealth.DriveHelper</RootNamespace>
     <Platforms>x86;x64;ARM64;AnyCPU</Platforms>
@@ -14,23 +14,23 @@
     <IsAotCompatible>true</IsAotCompatible>
     <PublishWmiLightStaticallyLinked>true</PublishWmiLightStaticallyLinked>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net9.0-windows' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' != '' and $(TargetFramework.Contains('windows')) ">
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <SelfContained>true</SelfContained>
   </PropertyGroup>
-  <ItemGroup Condition="'$(IsPublish)' == 'true' and '$(TargetFramework)' == 'net9.0-windows'">
+  <ItemGroup Condition=" '$(IsPublish)' == 'true' and '$(TargetFramework)' != '' and $(TargetFramework.Contains('windows')) ">
     <Compile Remove="Linux.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' != 'net9.0-windows'">
+  <ItemGroup Condition=" '$(TargetFramework)' != '' and !$(TargetFramework.Contains('windows')) ">
     <Compile Remove="Windows.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows'">
+  <ItemGroup Condition=" '$(TargetFramework)' != '' and $(TargetFramework.Contains('windows')) ">
     <PackageReference Include="WmiLight" Version="6.14.0" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(RuntimeIdentifiers)' != '' And $(RuntimeIdentifiers.Contains('linux')) ">
     <!-- Linux-specific properties here -->
   </PropertyGroup>	
   <ItemGroup>
-    <PackageReference Include="Spectre.Console" Version="0.50.0" />
+    <PackageReference Include="Spectre.Console" Version="0.54.0" />
   </ItemGroup>
 </Project>
