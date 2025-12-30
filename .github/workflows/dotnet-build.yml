@@ -17,7 +17,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
       - name: Restore dependencies
         run: dotnet restore UStealth.CICD.slnx
       - name: Build
@@ -41,7 +41,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
       - name: Download build outputs
         uses: actions/download-artifact@v4
         with:
@@ -50,9 +50,9 @@ jobs:
         shell: bash
         run: |
           if [ "${{ runner.os }}" == "Windows" ]; then
-            dotnet test .\\UStealth.Tests\\UStealth.Tests.csproj --verbosity normal --framework net9.0-windows
+            dotnet test .\\UStealth.Tests\\UStealth.Tests.csproj --verbosity normal --framework net10.0-windows
           else
-            dotnet test .//UStealth.Tests//UStealth.Tests.csproj --verbosity normal --framework net9.0
+            dotnet test .//UStealth.Tests//UStealth.Tests.csproj --verbosity normal --framework net10.0
           fi
 
   artifacts:
@@ -63,7 +63,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
       - name: Download build outputs
         uses: actions/download-artifact@v4
         with:
