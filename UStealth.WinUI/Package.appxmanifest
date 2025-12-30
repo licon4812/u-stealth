@@ -11,7 +11,7 @@
   <Identity
     Name="23610AlickolliSoftware.U-Stealth"
     Publisher="CN=5CECD841-CF4E-45AF-B443-573F4A3614A0"
-    Version="1.0.6.0" />
+    Version="1.0.7.0" />
 
   <mp:PhoneIdentity PhoneProductId="c7e5a6da-d685-4804-8078-1ada8bd90a16" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
