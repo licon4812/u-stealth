@@ -5,7 +5,7 @@
       This is due to WAP not being able to handle the TargetFrameworks Flag
     -->
     <TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
-    <!--<TargetFramework>net9.0-windows</TargetFramework>-->
+    <!--<TargetFramework>net10.0-windows</TargetFramework>-->
     <RootNamespace>UStealth.DriveHelper</RootNamespace>
     <Platforms>x86;x64;ARM64;AnyCPU</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
