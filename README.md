@@ -45,13 +45,14 @@ For now you will have to download the executable from the releases page on this 
 
 | Release Name                                             | Version | Download Link                                                              |
 |----------------------------------------------------------|---------|----------------------------------------------------------------------------|
+| CLI 1.0.4.0 .NET 10.0 Upgrade                            | 1.0.4.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/WinUI-1.0.7.0_CLI-1.0.4.0)|
 | CLI 1.0.3.0 Linux Release                                | 1.0.3.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/CLI-1.0.3.0)|
 | CLI 1.0.2.0 Native AOT                                   | 1.0.2.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/CLI-1.0.2.0)|				
 | Migrated to the Windows App SDK and Released CLI version | 1.0.1.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/1.0.1.0)    |
 
 ## Legacy Version
 
-The legacy version of U-Stealth is still available for download. It has been updated by me to dotnet 9.0 from dotnet framework 3.5
+The legacy version of U-Stealth is still available for download. I have updated it to dotnet 9.0 from .NET Framework 3.5
 
 ### GitHub Releases
 
