@@ -15,29 +15,55 @@ namespace UStealth
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.SetDefaultFont(new Font(new FontFamily("Microsoft Sans Serif"), 8f));
-            if (IsDarkModeAvailable())
-            {
-                Application.SetColorMode(SystemColorMode.Dark);
-            }
+            Application.SetColorMode(SystemColorMode.System);
+
+            // Listen for system color/theme changes and update the app while running
+            SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
+            Application.ApplicationExit += (_, __) => SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
+
             Application.Run(new ToggleMain());
         }
 
-        /// <summary>
-        /// Checks if dark mode is available (system theme is dark).
-        /// </summary>
-        public static bool IsDarkModeAvailable()
+        private static void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
         {
-            try
+            // Respond to relevant categories only
+            if (e.Category is not (UserPreferenceCategory.General or UserPreferenceCategory.Color
+                or UserPreferenceCategory.VisualStyle)) return;
+
+            void Apply()
             {
-                using RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize");
-                object value = key?.GetValue("AppsUseLightTheme");
-                if (value is int intValue)
+                // Re-apply System color mode and refresh open forms
+                Application.SetColorMode(SystemColorMode.System);
+                foreach (Form f in Application.OpenForms)
                 {
-                    return intValue == 0; // 0 = dark mode, 1 = light mode
+                    try
+                    {
+                        f.Invalidate(true);
+                        f.Refresh();
+                        f.Update();
+                    }
+                    catch { /* ignore repaint errors */ }
                 }
             }
-            catch { }
-            return false;
+
+            // Marshal to UI thread if needed
+            if (Application.OpenForms.Count > 0)
+            {
+                var anyForm = Application.OpenForms[0];
+                if (anyForm.IsHandleCreated && anyForm.InvokeRequired)
+                {
+                    try { anyForm.BeginInvoke((Action)Apply); } catch { }
+                }
+                else
+                {
+                    Apply();
+                }
+            }
+            else
+            {
+                // No forms yet; still re-apply app-wide setting
+                Application.SetColorMode(SystemColorMode.System);
+            }
         }
     }
 }
