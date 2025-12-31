@@ -98,6 +98,8 @@ namespace UStealth
         {
             Cursor.Current = Cursors.WaitCursor;
             this.dg1.AutoGenerateColumns = true;
+            // set header cells to respect system colors
+            this.dg1.EnableHeadersVisualStyles = false;
             var dt = GetDriveList();
             if (dt != null)
             {
