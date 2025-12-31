@@ -58,6 +58,7 @@ The legacy version of U-Stealth is still available for download. I have updated 
 
 | Release Name         | Version | Download Link                                                           |
 |----------------------|---------|-------------------------------------------------------------------------|
+| Upgraded to .NET 10.0 & Theme Support | 1.0.1.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/Legacy-1.0.1) |
 | Upgraded to .NET 9.0 | 1.0.0.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/1.0.0.0) |
 
 
