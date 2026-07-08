@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using ModularPipelines.Attributes;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
@@ -82,7 +83,7 @@ namespace UStealth.ModularPipelines.Modules
                     context.FileSystem.CopyFile(publishedExecutable, $@"{distributionFolder}\{renamedFileName}");
                     var zippedFolder = context.Zip.ZipFolder(distributionFolder, publishedDir);
                     context.FileSystem.MoveFile(zippedFolder, $@"{publishedDir}\ustealth-cli-{publishProfileName}.zip");
-                    context.Logger.LogToConsole($"Published and zipped {publishProfileName} to {zippedFolder.Path}");
+                    context.Logger.LogInformation($"Published and zipped {publishProfileName} to {zippedFolder.Path}");
                 }
             }
             return await Task.FromResult<Command?>(new Command(null));

@@ -42,7 +42,7 @@ namespace UStealth.WinUI
             ThemeService.ConfigureBackdrop(AppBackdrop);
         }
 
-        public void SetApplicationTheme()
+        public async void SetApplicationTheme()
         {
             var theme = Windows.Storage.ApplicationData.Current.LocalSettings.Values["AppTheme"]?.ToString();
             if (theme != null)
@@ -50,19 +50,19 @@ namespace UStealth.WinUI
                 switch (theme)
                 {
                     case "Light":
-                        ThemeService.SetElementTheme(ElementTheme.Light);
+                        await ThemeService.SetElementThemeAsync(ElementTheme.Light);
                         break;
                     case "Dark":
-                        ThemeService.SetElementTheme(ElementTheme.Dark);
+                        await ThemeService.SetElementThemeAsync(ElementTheme.Dark);
                         break;
                     default:
-                        ThemeService.SetElementTheme(ElementTheme.Default);
+                        await ThemeService.SetElementThemeAsync(ElementTheme.Default);
                         break;
                 }
             }
             else
             {
-                ThemeService.SetElementTheme(ElementTheme.Default);
+                await ThemeService.SetElementThemeAsync(ElementTheme.Default);
             }
         }
 

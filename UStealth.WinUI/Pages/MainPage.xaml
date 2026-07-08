@@ -46,7 +46,7 @@
                 Margin="0,16,0,0"
                 x:DataType="models:DriveInfoModel"
                 AutoGenerateColumns="False"
-                CanFilterColumns="False"
+                CanFilterColumns="True"
                 ItemsSource="{x:Bind Drives}"
                 SelectionMode="Single">
                 <tableView:TableView.Columns>

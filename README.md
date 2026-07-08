@@ -4,7 +4,7 @@ u-stealth is a legacy tool for allowing for drives to be hidden so that the wii-
 
 It has been migrated from Windows Forms targeting .NET Framework 3.5 to Windows Forms for .NET 9.0.
 
-I plan on migrating it to the windows app sdk in the future. For more modern UI and for Native AOT and trimming.
+I have also migrated it to the windows app sdk as a UI application as well as a CLI application for both windows and linux. For more modern UI and for Native AOT and trimming.
 
 ## U-Stealth
 
@@ -45,18 +45,20 @@ For now you will have to download the executable from the releases page on this 
 
 | Release Name                                             | Version | Download Link                                                              |
 |----------------------------------------------------------|---------|----------------------------------------------------------------------------|
+| CLI 1.0.4.0 .NET 10.0 Upgrade                            | 1.0.4.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/WinUI-1.0.7.0_CLI-1.0.4.0)|
 | CLI 1.0.3.0 Linux Release                                | 1.0.3.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/CLI-1.0.3.0)|
 | CLI 1.0.2.0 Native AOT                                   | 1.0.2.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/CLI-1.0.2.0)|				
 | Migrated to the Windows App SDK and Released CLI version | 1.0.1.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/1.0.1.0)    |
 
 ## Legacy Version
 
-The legacy version of U-Stealth is still available for download. It has been updated by me to dotnet 9.0 from dotnet framework 3.5
+The legacy version of U-Stealth is still available for download. I have updated it to dotnet 9.0 from .NET Framework 3.5
 
 ### GitHub Releases
 
 | Release Name         | Version | Download Link                                                           |
 |----------------------|---------|-------------------------------------------------------------------------|
+| Upgraded to .NET 10.0 & Theme Support | 1.0.1.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/Legacy-1.0.1) |
 | Upgraded to .NET 9.0 | 1.0.0.0 | [Download](https://github.com/licon4812/u-stealth/releases/tag/1.0.0.0) |
 
 
