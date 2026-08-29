@@ -48,8 +48,7 @@
   <ItemGroup>
     <ProjectReference Include="..\UStealth.DriveHelper\UStealth.DriveHelper.csproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      <AdditionalProperties>PublishAot=true;SelfContained=true;_RuntimeIdentifierUsesAppHost=false;UseAppHost=false;GenerateDependencyFile=false;GenerateRuntimeConfigurationFiles=false</AdditionalProperties>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -89,45 +88,5 @@
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <DriveHelperRuntimeIdentifier Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</DriveHelperRuntimeIdentifier>
-    <DriveHelperRuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'x86'">win-x86</DriveHelperRuntimeIdentifier>
-    <DriveHelperRuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'x64'">win-x64</DriveHelperRuntimeIdentifier>
-    <DriveHelperRuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'ARM64'">win-arm64</DriveHelperRuntimeIdentifier>
-  </PropertyGroup>
-
-  <Target Name="BuildDriveHelperForRelease" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' and '$(DriveHelperRuntimeIdentifier)' != ''">
-    <Exec Command="dotnet publish &quot;$(MSBuildProjectDirectory)\..\UStealth.DriveHelper\UStealth.DriveHelper.csproj&quot; -c $(Configuration) -f net10.0-windows -r $(DriveHelperRuntimeIdentifier) -p:PublishProfile=win-$(Platform) --no-restore" />
-    <PropertyGroup>
-      <DriveHelperNativePath>$(MSBuildProjectDirectory)\..\UStealth.DriveHelper\bin\$(Configuration)\net10.0-windows\$(DriveHelperRuntimeIdentifier)\native\UStealth.DriveHelper.exe</DriveHelperNativePath>
-      <AppxStagingDirectory>$(TargetDir)AppX</AppxStagingDirectory>
-    </PropertyGroup>
-    <Delete Files="$(TargetDir)UStealth.DriveHelper.dll;$(TargetDir)UStealth.DriveHelper.deps.json;$(TargetDir)UStealth.DriveHelper.runtimeconfig.json;$(AppxStagingDirectory)\UStealth.DriveHelper.dll;$(AppxStagingDirectory)\UStealth.DriveHelper.deps.json;$(AppxStagingDirectory)\UStealth.DriveHelper.runtimeconfig.json" />
-    <Copy SourceFiles="$(DriveHelperNativePath)" DestinationFolder="$(TargetDir)" />
-    <Copy SourceFiles="$(DriveHelperNativePath)" DestinationFolder="$(AppxStagingDirectory)" Condition="Exists('$(AppxStagingDirectory)')" />
-  </Target>
-
-  <Target Name="PublishDriveHelper" AfterTargets="CopyNativeBinary" Condition="'$(RuntimeIdentifier)' == 'win-x86' or '$(RuntimeIdentifier)' == 'win-x64' or '$(RuntimeIdentifier)' == 'win-arm64'">
-    <Exec Command="dotnet publish &quot;$(MSBuildProjectDirectory)\..\UStealth.DriveHelper\UStealth.DriveHelper.csproj&quot; -c $(Configuration) -f net10.0-windows -r $(RuntimeIdentifier) -p:PublishProfile=win-$(Platform) --no-restore" />
-    <PropertyGroup>
-      <DriveHelperNativePath>$(MSBuildProjectDirectory)\..\UStealth.DriveHelper\bin\$(Configuration)\net10.0-windows\$(RuntimeIdentifier)\native\UStealth.DriveHelper.exe</DriveHelperNativePath>
-    </PropertyGroup>
-    <Delete Files="$(PublishDir)UStealth.DriveHelper.dll;$(PublishDir)UStealth.DriveHelper.deps.json;$(PublishDir)UStealth.DriveHelper.runtimeconfig.json" />
-    <Copy SourceFiles="$(DriveHelperNativePath)" DestinationFolder="$(PublishDir)" />
-  </Target>
-
-  <Target Name="PublishDriveHelperForAppx" BeforeTargets="_CreateAppxPackage" Condition="'$(RuntimeIdentifier)' == 'win-x86' or '$(RuntimeIdentifier)' == 'win-x64' or '$(RuntimeIdentifier)' == 'win-arm64'">
-    <Exec Command="dotnet publish &quot;$(MSBuildProjectDirectory)\..\UStealth.DriveHelper\UStealth.DriveHelper.csproj&quot; -c $(Configuration) -f net10.0-windows -r $(RuntimeIdentifier) -p:PublishProfile=win-$(Platform) --no-restore" />
-  </Target>
-
-  <Target Name="CopyDriveHelperToAppx" AfterTargets="_CreateAppxPackage" BeforeTargets="_GenerateAppxPackage" Condition="'$(RuntimeIdentifier)' == 'win-x86' or '$(RuntimeIdentifier)' == 'win-x64' or '$(RuntimeIdentifier)' == 'win-arm64'">
-    <PropertyGroup>
-      <DriveHelperNativePath>$(MSBuildProjectDirectory)\..\UStealth.DriveHelper\bin\$(Configuration)\net10.0-windows\$(RuntimeIdentifier)\native\UStealth.DriveHelper.exe</DriveHelperNativePath>
-      <AppxStagingDirectory>$(TargetDir)AppX</AppxStagingDirectory>
-    </PropertyGroup>
-    <Delete Files="$(AppxStagingDirectory)\UStealth.DriveHelper.dll;$(AppxStagingDirectory)\UStealth.DriveHelper.deps.json;$(AppxStagingDirectory)\UStealth.DriveHelper.runtimeconfig.json" />
-    <Copy SourceFiles="$(DriveHelperNativePath)" DestinationFolder="$(AppxStagingDirectory)" />
-  </Target>
 
 </Project>

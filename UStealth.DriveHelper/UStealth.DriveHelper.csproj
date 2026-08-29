@@ -18,6 +18,11 @@
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <SelfContained>true</SelfContained>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' != '' and $(TargetFramework.Contains('windows')) and '$(PublishAot)' == 'true' ">
+    <UseAppHost>false</UseAppHost>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+  </PropertyGroup>
   <ItemGroup Condition=" '$(IsPublish)' == 'true' and '$(TargetFramework)' != '' and $(TargetFramework.Contains('windows')) ">
     <Compile Remove="Linux.cs" />
   </ItemGroup>
@@ -32,5 +37,13 @@
   </PropertyGroup>	
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.54.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' != '' and $(TargetFramework.Contains('windows')) and '$(PublishAot)' == 'true' ">
+    <Content Include="$(OutputPath)native\$(AssemblyName).exe">
+      <Link>$(AssemblyName).exe</Link>
+      <TargetPath>$(AssemblyName).exe</TargetPath>
+      <CopyToOutputDirectory>IfDifferent</CopyToOutputDirectory>
+      <CopyToPublishDirectory>IfDifferent</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 </Project>
