@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:UStealth.WinUI.Models"
     xmlns:tableView="using:WinUI.TableView"
+    d:DataContext="{d:DesignInstance Type=models:DriveInfoModel}"
     mc:Ignorable="d">
 
     <Grid Padding="16">
@@ -44,58 +45,85 @@
                 x:Name="DrivesTableView"
                 Grid.Row="1"
                 Margin="0,16,0,0"
-                x:DataType="models:DriveInfoModel"
                 AutoGenerateColumns="False"
                 CanFilterColumns="True"
                 ItemsSource="{x:Bind Drives}"
                 SelectionMode="Single">
                 <tableView:TableView.Columns>
-                    <tableView:TableViewCheckBoxColumn
-                        Binding="{Binding IsSystemDrive}"
-                        Header="System Drive"
-                        IsReadOnly="True" />
-                    <tableView:TableViewTextColumn
-                        Binding="{Binding DriveLetter}"
-                        Header="Drive Letter"
-                        IsReadOnly="True" />
-                    <tableView:TableViewTextColumn
+                    <tableView:TableViewTemplateColumn Header="System Drive" IsReadOnly="True">
+                        <tableView:TableViewTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:DriveInfoModel">
+                                <CheckBox IsChecked="{x:Bind IsSystemDrive, Mode=OneWay}" />
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.CellTemplate>
+                    </tableView:TableViewTemplateColumn>
+                    <tableView:TableViewTemplateColumn Header="Drive Letter" IsReadOnly="True">
+                        <tableView:TableViewTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:DriveInfoModel">
+                                <TextBlock Text="{x:Bind DriveLetter, Mode=OneWay}" />
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.CellTemplate>
+                    </tableView:TableViewTemplateColumn>
+                    <tableView:TableViewTemplateColumn
                         Width="80"
-                        Binding="{Binding Interface}"
                         Header="Interface"
-                        IsReadOnly="True" />
-                    <tableView:TableViewTextColumn
-                        Binding="{Binding VolumeLabel}"
-                        Header="Volume Label"
-                        IsReadOnly="True" />
-                    <tableView:TableViewTextColumn
-                        Binding="{Binding Format}"
-                        Header="Format"
-                        IsReadOnly="True" />
-                    <tableView:TableViewTextColumn
+                        IsReadOnly="True">
+                        <tableView:TableViewTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:DriveInfoModel">
+                                <TextBlock Text="{x:Bind Interface, Mode=OneWay}" />
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.CellTemplate>
+                    </tableView:TableViewTemplateColumn>
+                    <tableView:TableViewTemplateColumn Header="Volume Label" IsReadOnly="True">
+                        <tableView:TableViewTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:DriveInfoModel">
+                                <TextBlock Text="{x:Bind VolumeLabel, Mode=OneWay}" />
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.CellTemplate>
+                    </tableView:TableViewTemplateColumn>
+                    <tableView:TableViewTemplateColumn Header="Format" IsReadOnly="True">
+                        <tableView:TableViewTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:DriveInfoModel">
+                                <TextBlock Text="{x:Bind Format, Mode=OneWay}" />
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.CellTemplate>
+                    </tableView:TableViewTemplateColumn>
+                    <tableView:TableViewTemplateColumn
                         Width="200"
-                        Binding="{Binding Model}"
                         Header="Model"
-                        IsReadOnly="True" />
-                    <tableView:TableViewTextColumn
-                        Binding="{Binding MediaType}"
-                        Header="Media type"
-                        IsReadOnly="True" />
-                    <tableView:TableViewTextColumn
-                        Binding="{Binding Size}"
-                        Header="Size"
-                        IsReadOnly="True" />
+                        IsReadOnly="True">
+                        <tableView:TableViewTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:DriveInfoModel">
+                                <TextBlock Text="{x:Bind Model, Mode=OneWay}" />
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.CellTemplate>
+                    </tableView:TableViewTemplateColumn>
+                    <tableView:TableViewTemplateColumn Header="Media type" IsReadOnly="True">
+                        <tableView:TableViewTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:DriveInfoModel">
+                                <TextBlock Text="{x:Bind MediaType, Mode=OneWay}" />
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.CellTemplate>
+                    </tableView:TableViewTemplateColumn>
+                    <tableView:TableViewTemplateColumn Header="Size" IsReadOnly="True">
+                        <tableView:TableViewTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:DriveInfoModel">
+                                <TextBlock Text="{x:Bind Size, Mode=OneWay}" />
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.CellTemplate>
+                    </tableView:TableViewTemplateColumn>
                     <tableView:TableViewTemplateColumn x:Name="StatusTemplate" Header="Status">
                         <tableView:TableViewTemplateColumn.CellTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="models:DriveInfoModel">
                                 <StackPanel>
                                     <ToggleSwitch
                                         x:Name="StatusToggle"
-                                        IsOn="{Binding Status, Mode=TwoWay, Converter={StaticResource StatusToIsOnConverter}}"
+                                        IsOn="{x:Bind Status, Mode=TwoWay, Converter={StaticResource StatusToIsOnConverter}}"
                                         OffContent="NORMAL"
                                         OnContent="HIDDEN"
                                         Toggled="StatusToggle_OnToggled"
-                                        Visibility="{Binding Status, Converter={StaticResource StatusToTemplateColumnVisibilityConverter}}" />
-                                    <TextBlock Text="{Binding Status}" Visibility="{Binding Status, Converter={StaticResource UnknownStatusVisibilityConverter}}" />
+                                        Visibility="{x:Bind Status, Converter={StaticResource StatusToTemplateColumnVisibilityConverter}}" />
+                                    <TextBlock Text="{x:Bind Status}" Visibility="{x:Bind Status, Converter={StaticResource UnknownStatusVisibilityConverter}}" />
                                 </StackPanel>
                             </DataTemplate>
                         </tableView:TableViewTemplateColumn.CellTemplate>

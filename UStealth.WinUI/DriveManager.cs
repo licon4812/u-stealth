@@ -12,6 +12,8 @@ namespace UStealth.WinUI
 {
     public class DriveManager
     {
+        private static string HelperPath => Path.Combine(AppContext.BaseDirectory, "UStealth.DriveHelper.exe");
+
         public List<Models.DriveInfoModel> GetDriveList()
         {
             var drives = new List<Models.DriveInfoModel>();
@@ -19,19 +21,22 @@ namespace UStealth.WinUI
             {
                 var psi = new ProcessStartInfo
                 {
-                    FileName = "UStealth.DriveHelper.exe",
+                    FileName = HelperPath,
                     Arguments = "listdrives",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
-                using var process = Process.Start(psi);
+                using var process = Process.Start(psi) ?? throw new InvalidOperationException($"Unable to start drive helper: {HelperPath}");
                 string output = process.StandardOutput.ReadToEnd();
                 string error = process.StandardError.ReadToEnd();
                 process.WaitForExit();
                 int exitCode = process.ExitCode;
-                if (exitCode == 0 && !string.IsNullOrWhiteSpace(output))
+                if (exitCode != 0)
+                    throw new InvalidOperationException($"Drive helper exited with code {exitCode}: {error.Trim()}");
+
+                if (!string.IsNullOrWhiteSpace(output))
                 {
                     var driveList = JsonSerializer.Deserialize(output, DriveInfoModelJsonContext.Default.ListDriveInfoModel);
                     if (driveList != null)
@@ -43,7 +48,11 @@ namespace UStealth.WinUI
                     drive.Status = GetBootStatusFromHelper(drive.DeviceID);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to load drives: {ex}");
+                throw;
+            }
             return drives;
         }
 
@@ -53,14 +62,14 @@ namespace UStealth.WinUI
             {
                 var psi = new ProcessStartInfo
                 {
-                    FileName = "UStealth.DriveHelper.exe",
+                    FileName = HelperPath,
                     Arguments = $"readboot \"{device}\"",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
-                using var process = Process.Start(psi);
+                using var process = Process.Start(psi) ?? throw new InvalidOperationException($"Unable to start drive helper: {HelperPath}");
                 string output = process.StandardOutput.ReadToEnd();
                 string error = process.StandardError.ReadToEnd();
                 process.WaitForExit();
