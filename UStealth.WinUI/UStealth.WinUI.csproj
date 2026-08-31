@@ -15,6 +15,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsAotCompatible>true</IsAotCompatible>
     <CsWinRTAotWarningLevel>2</CsWinRTAotWarningLevel>
+    <DriveHelperPlatform Condition="'$(RuntimeIdentifier)' == 'win-arm64'">ARM64</DriveHelperPlatform>
+    <DriveHelperPlatform Condition="'$(RuntimeIdentifier)' == 'win-x86'">x86</DriveHelperPlatform>
+    <DriveHelperPlatform Condition="'$(RuntimeIdentifier)' == 'win-x64'">x64</DriveHelperPlatform>
+    <DriveHelperPlatform Condition="'$(RuntimeIdentifier)' == ''">x64</DriveHelperPlatform>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,11 +50,27 @@
     <PackageReference Include="WinUI.TableView" Version="1.5.0-preview2" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\UStealth.DriveHelper\bin\$(Configuration)\net10.0-windows\win-$(DriveHelperPlatform)\publish\UStealth.DriveHelper.exe">
+      <Link>UStealth.DriveHelper.exe</Link>
+      <TargetPath>UStealth.DriveHelper.exe</TargetPath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>IfDifferent</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\UStealth.DriveHelper\UStealth.DriveHelper.csproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <AdditionalProperties>PublishAot=true;SelfContained=true;_RuntimeIdentifierUsesAppHost=false;UseAppHost=false;GenerateDependencyFile=false;GenerateRuntimeConfigurationFiles=false</AdditionalProperties>
+      <Private>false</Private>
+      <Targets>Publish</Targets>
+      <AdditionalProperties>TargetFramework=net10.0-windows;Platform=$(DriveHelperPlatform);RuntimeIdentifier=win-$(DriveHelperPlatform);PublishProfile=win-$(DriveHelperPlatform);PublishAot=true;SelfContained=true;UseAppHost=true;GenerateDependencyFile=false;GenerateRuntimeConfigurationFiles=false</AdditionalProperties>
     </ProjectReference>
   </ItemGroup>
+  <PropertyGroup>
+    <DriveHelperPublishProperties>Configuration=$(Configuration);Platform=$(DriveHelperPlatform);TargetFramework=net10.0-windows;RuntimeIdentifier=win-$(DriveHelperPlatform);PublishProfile=win-$(DriveHelperPlatform);PublishAot=true;SelfContained=true;UseAppHost=true;GenerateDependencyFile=false;GenerateRuntimeConfigurationFiles=false</DriveHelperPublishProperties>
+  </PropertyGroup>
+  <Target Name="PublishDriveHelperBeforePackaging" BeforeTargets="Build;_GenerateAppxPackageRecipeFile" Condition="'$(DesignTimeBuild)' != 'true'">
+    <MSBuild Projects="$(MSBuildProjectDirectory)\..\UStealth.DriveHelper\UStealth.DriveHelper.csproj" Targets="Publish" Properties="$(DriveHelperPublishProperties)" />
+  </Target>
   <ItemGroup>
     <Page Update="SettingsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -78,12 +98,12 @@
     <PublishAot>True</PublishAot>
     <SelfContained>True</SelfContained>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
-    <AppxBundle>Auto</AppxBundle>
+    <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
